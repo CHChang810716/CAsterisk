@@ -118,7 +118,7 @@ Syntax:
   ||= <tuple-literal>
 
 <statement-list>
-  ::= <statement>*
+  ::= <statement>+
 <ret-context>
   ::= {
     <statement-list>?
@@ -144,9 +144,9 @@ Syntax:
 <asn-left-hand-list>
   ::= <asn-left-hand><,<asn-left-hand>*>
 <assign-stmt>
-  ::= <asn-left-hand-list> = <expr>
+  ::= <asn-left-hand-list> = <expr>;
 <statement>
-  ::= <assign-stmt>;
+  ::= <assign-stmt>
 ```
 
 Function

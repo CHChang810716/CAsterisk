@@ -98,3 +98,109 @@ TEST(expr_test, str_literal) {
 
   EXPECT_ANY_THROW((tp::parse<RuleStrLit, Action>(not_str_1, cap)));
 }
+
+TEST(expr_test, array_literal) {
+  using RuleArrLit = tp::must<catk::syntax::ArrayLiteral>;
+
+  tp::memory_input<> arr_0("[]", "");
+  tp::memory_input<> arr_1("[0i32, 1i32, 3i32]", "");
+  tp::memory_input<> arr_2("[\"a\", \"b\"]", "");
+  tp::memory_input<> arr_3("[[[]], []]", "");
+
+  tp::memory_input<> not_arr_1("[", "");
+  tp::memory_input<> not_arr_2("]", "");
+  tp::memory_input<> not_arr_3("[[]", "");
+  tp::memory_input<> not_arr_4("[0i32", "");
+
+  std::string cap;
+  tp::parse<RuleArrLit, Action>(arr_0, cap);
+  EXPECT_EQ(cap, "[]");
+  tp::parse<RuleArrLit, Action>(arr_1, cap);
+  EXPECT_EQ(cap, "[0i32, 1i32, 3i32]");
+  tp::parse<RuleArrLit, Action>(arr_2, cap);
+  EXPECT_EQ(cap, "[\"a\", \"b\"]");
+  tp::parse<RuleArrLit, Action>(arr_3, cap);
+  EXPECT_EQ(cap, "[[[]], []]");
+
+  EXPECT_ANY_THROW((tp::parse<RuleArrLit, Action>(not_arr_1, cap)));
+  EXPECT_ANY_THROW((tp::parse<RuleArrLit, Action>(not_arr_2, cap)));
+  EXPECT_ANY_THROW((tp::parse<RuleArrLit, Action>(not_arr_3, cap)));
+  EXPECT_ANY_THROW((tp::parse<RuleArrLit, Action>(not_arr_4, cap)));
+
+}
+
+TEST(expr_test, expr) {
+  using RuleExpr = tp::must<catk::syntax::Expr>;
+
+  tp::memory_input<> expr_0("asdf", "");
+  tp::memory_input<> expr_1("\"asdf\"", "");
+  tp::memory_input<> expr_2(".32f64", "");
+  tp::memory_input<> expr_3("~3i64", "");
+  tp::memory_input<> expr_4("4i32 + 5i64", "");
+
+  tp::memory_input<> not_expr_0("~ 3i32", "");
+  tp::memory_input<> not_expr_1("*", "");
+
+  std::string cap;
+  tp::parse<RuleExpr, Action>(expr_0, cap);
+  EXPECT_EQ(cap, "asdf");
+  tp::parse<RuleExpr, Action>(expr_1, cap);
+  EXPECT_EQ(cap, "\"asdf\"");
+  tp::parse<RuleExpr, Action>(expr_2, cap);
+  EXPECT_EQ(cap, ".32f64");
+  tp::parse<RuleExpr, Action>(expr_3, cap);
+  EXPECT_EQ(cap, "~3i64");
+  tp::parse<RuleExpr, Action>(expr_4, cap);
+  EXPECT_EQ(cap, "4i32 + 5i64");
+
+  EXPECT_ANY_THROW((tp::parse<RuleExpr, Action>(not_expr_0, cap)));
+  EXPECT_ANY_THROW((tp::parse<RuleExpr, Action>(not_expr_1, cap)));
+}
+
+TEST(expr_test, ifexpr) {
+  using RuleIfExpr = tp::must<catk::syntax::IfExpr>;
+  auto expr_0_str = "if( cond ) case_t else case_f";
+  auto expr_1_str = "if( a == b ) a + 1i32 else b + 1i32";
+  auto expr_2_str = "if( b + 1i32 ) ~2i32 else y == 3i32";
+  tp::memory_input<> expr_0(expr_0_str, "");
+  tp::memory_input<> expr_1(expr_1_str, "");
+  tp::memory_input<> expr_2(expr_2_str, "");
+
+  tp::memory_input<> not_expr_0("if( )", "");
+  tp::memory_input<> not_expr_1("if(true) x else", "");
+
+  std::string cap;
+  tp::parse<RuleIfExpr, Action>(expr_0, cap);
+  EXPECT_EQ(cap, expr_0_str);
+  tp::parse<RuleIfExpr, Action>(expr_1, cap);
+  EXPECT_EQ(cap, expr_1_str);
+  tp::parse<RuleIfExpr, Action>(expr_2, cap);
+  EXPECT_EQ(cap, expr_2_str);
+
+  EXPECT_ANY_THROW((tp::parse<RuleIfExpr, Action>(not_expr_0, cap)));
+  EXPECT_ANY_THROW((tp::parse<RuleIfExpr, Action>(not_expr_1, cap)));
+}
+
+TEST(expr_test, ret_context) {
+  using RuleRetCtx = tp::must<catk::syntax::RetContext>;
+  auto expr_0_str = "{ ret 0i32; }";
+  auto expr_1_str = "{ ret if( a == b ) a + 1i32 else b + 1i32; }";
+  auto expr_2_str = "{ ret { ret 1i32; }; }";
+  tp::memory_input<> expr_0(expr_0_str, "");
+  tp::memory_input<> expr_1(expr_1_str, "");
+  tp::memory_input<> expr_2(expr_2_str, "");
+
+  tp::memory_input<> not_expr_0("{}", "");
+  tp::memory_input<> not_expr_1("{", "");
+
+  std::string cap;
+  tp::parse<RuleRetCtx, Action>(expr_0, cap);
+  EXPECT_EQ(cap, expr_0_str);
+  tp::parse<RuleRetCtx, Action>(expr_1, cap);
+  EXPECT_EQ(cap, expr_1_str);
+  tp::parse<RuleRetCtx, Action>(expr_2, cap);
+  EXPECT_EQ(cap, expr_2_str);
+
+  EXPECT_ANY_THROW((tp::parse<RuleRetCtx, Action>(not_expr_0, cap)));
+  EXPECT_ANY_THROW((tp::parse<RuleRetCtx, Action>(not_expr_1, cap)));
+}

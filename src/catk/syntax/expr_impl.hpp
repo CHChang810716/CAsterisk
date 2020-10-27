@@ -8,6 +8,9 @@ namespace tp = tao::pegtl;
 
 namespace catk::syntax {
 
+template<class R>
+using SpacePad = tp::pad<R, tp::space>;
+
 struct IntTag : tp::seq<
   tp::opt<tp::one<'u'>>, tp::one<'i'>, tp::sor<
     TP_STR("8"), TP_STR("16"), TP_STR("32"), TP_STR("64")
@@ -17,7 +20,7 @@ struct DecIntLiteral : tp::seq<
   tp::opt<tp::one<'-'>>,
   tp::plus<tp::digit>
 > {}; 
-struct HexIntLiteral : tp::seq<
+struct HexIntLiteral : tp::if_must<
   TP_STR("0x"), 
   tp::plus<tp::xdigit>
 > {};
@@ -62,4 +65,94 @@ struct StringLiteral : tp::seq<
 > {
   using Content = StringLiteralContent;
 };
+
+struct Expr;
+
+struct IfExpr : tp::if_must<
+  TP_STR("if"), 
+  SpacePad<tp::one<'('>>, 
+  Expr,
+  SpacePad<tp::one<')'>>, 
+  Expr,
+  SpacePad<TP_STR("else")>,
+  Expr
+> {};
+
+struct ArrayLiteral : tp::if_must<
+  tp::one<'['>, 
+  tp::opt<tp::list<Expr, tp::one<','>, tp::space>>,
+  tp::one<']'>
+> {};
+
+struct Literal : tp::sor<
+  ArrayLiteral,
+  StringLiteral,
+  FPLiteral,
+  IntLiteral
+> {};
+
+struct UnaryOp : tp::one<
+  '+', '-', '~', '*', '!', '&'
+> {};
+
+struct UnaryExpr : tp::seq<UnaryOp, Expr> {};
+
+struct Term : tp::sor<
+  tp::identifier,
+  Literal,
+  UnaryExpr,
+  tp::seq<tp::one<'('>, SpacePad<Expr>, tp::one<')'>>
+> {};
+
+struct BinOp : tp::sor<
+  tp::one<'+', '-', '*', '/', '%', '&', '|', '^', '<', '>'>,
+  TP_STR("=="), TP_STR("<="), TP_STR(">="), TP_STR("!=")
+> {};
+
+struct BinExpr : tp::seq<Term, tp::pad<BinOp, tp::space>, Expr> {};
+
+struct AssignLeftHand : tp::list<
+  tp::sor<
+    tp::one<'_'>,
+    tp::identifier
+  >, 
+  SpacePad<tp::one<','>>
+> {};
+
+struct AssignStmt : tp::seq<
+  AssignLeftHand, 
+  SpacePad<tp::one<'='>>, 
+  Expr,
+  tp::space,
+  tp::one<';'>
+> {};
+
+struct Statement : tp::sor<
+  AssignStmt
+> {};
+struct StmtList : tp::list<
+  Statement, 
+  tp::opt<tp::space>
+> {};
+
+struct RetContext : tp::seq<
+  tp::one<'{'>,
+  tp::opt<tp::space>,
+  tp::opt<StmtList>,
+  tp::opt<tp::space>,
+  tp::seq<
+    TP_STR("ret"), tp::space, 
+    Expr, tp::opt<tp::space>, tp::one<';'>
+  >,
+  tp::opt<tp::space>,
+  tp::one<'}'>
+> {};
+struct Expr : tp::sor<
+  RetContext,
+  IfExpr,
+  BinExpr,
+  Term
+> {};
+
+
 }
