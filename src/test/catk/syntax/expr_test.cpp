@@ -1,11 +1,13 @@
 #include <gtest/gtest.h>
 #include <catk/syntax/expr_impl.hpp>
+#include <avalon/app/path.hpp>
 
 template<class R>
 struct Action {
   template<class T>
   static void apply(const T& in, std::string& str) {
     str = in.string();
+    std::cout << str << std::endl;
   }
 };
 
@@ -204,3 +206,60 @@ TEST(expr_test, ret_context) {
   EXPECT_ANY_THROW((tp::parse<RuleRetCtx, Action>(not_expr_0, cap)));
   EXPECT_ANY_THROW((tp::parse<RuleRetCtx, Action>(not_expr_1, cap)));
 }
+
+TEST(expr_test, def_func_test) {
+  using RuleLambdaExpr = tp::must<catk::syntax::LambdaLiteral>;
+  auto expr_0_str = "fn [m, n]() 0i32";
+  auto expr_1_str = "fn (a) if(a) \"str\" else \"qqq\"";
+  auto expr_2_str = "fn (x, y) { ret x; }";
+  tp::memory_input<> expr_0(expr_0_str, "");
+  tp::memory_input<> expr_1(expr_1_str, "");
+  tp::memory_input<> expr_2(expr_2_str, "");
+
+  tp::memory_input<> not_expr_0("fn", "");
+  tp::memory_input<> not_expr_1("fn {}", "");
+
+  std::string cap;
+  tp::parse<RuleLambdaExpr, Action>(expr_0, cap);
+  EXPECT_EQ(cap, expr_0_str);
+  tp::parse<RuleLambdaExpr, Action>(expr_1, cap);
+  EXPECT_EQ(cap, expr_1_str);
+  tp::parse<RuleLambdaExpr, Action>(expr_2, cap);
+  EXPECT_EQ(cap, expr_2_str);
+
+  EXPECT_ANY_THROW((tp::parse<RuleLambdaExpr, Action>(not_expr_0, cap)));
+  EXPECT_ANY_THROW((tp::parse<RuleLambdaExpr, Action>(not_expr_1, cap)));
+}
+
+TEST(stmt_test, basic_test) {
+  using RuleStmt = tp::must<catk::syntax::Statement>;
+  auto stmt_0_str = "a = 3i32;";
+  auto stmt_1_str = "a = foo();";
+  auto stmt_2_str = "foo = fn [m, n]() 0i32;";
+  tp::memory_input<> stmt_0(stmt_0_str, "");
+  tp::memory_input<> stmt_1(stmt_1_str, "");
+  tp::memory_input<> stmt_2(stmt_2_str, "");
+
+  tp::memory_input<> not_stmt_0("a = 3i32", "");
+  tp::memory_input<> not_stmt_1("foo();", "");
+
+  std::string cap;
+  tp::parse<RuleStmt, Action>(stmt_0, cap);
+  EXPECT_EQ(cap, stmt_0_str);
+  tp::parse<RuleStmt, Action>(stmt_1, cap);
+  EXPECT_EQ(cap, stmt_1_str);
+  tp::parse<RuleStmt, Action>(stmt_2, cap);
+  EXPECT_EQ(cap, stmt_2_str);
+
+  EXPECT_ANY_THROW((tp::parse<RuleStmt, Action>(not_stmt_0, cap)));
+  EXPECT_ANY_THROW((tp::parse<RuleStmt, Action>(not_stmt_1, cap)));
+
+}
+
+// TEST(expr_test, file_test) {
+//   using RuleFile = tp::must<catk::syntax::File>;
+//   auto f = avalon::app::test_data_dir() / "addmul.car";
+//   tp::file_input<> in(f.string());
+//   std::string cap;
+//   tp::parse<RuleFile, Action>(in, cap);
+// }

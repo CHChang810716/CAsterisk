@@ -84,11 +84,60 @@ struct ArrayLiteral : tp::if_must<
   tp::one<']'>
 > {};
 
+struct Param : tp::seq<
+  tp::identifier, 
+  tp::opt<
+    tp::seq<SpacePad<tp::one<'='>>, Expr>
+  >
+> {};
+struct ParamList : tp::list<Param, tp::one<','>, tp::space> {};
+
+struct CaptureItem : tp::identifier {};
+
+struct CaptureList : tp::seq<
+  tp::one<'['>,
+  tp::star<tp::space>,
+  tp::opt<
+    tp::seq<
+      tp::list<
+        CaptureItem, tp::one<','>, tp::space
+      >,
+      tp::star<tp::space>
+    >
+  >,
+  tp::one<']'>
+> {};
+
+struct LambdaLiteral : tp::seq<
+  TP_STR("fn"),
+  tp::star<tp::space>,
+  tp::opt<CaptureList>,
+  SpacePad<tp::one<'('>>,
+  tp::opt<ParamList>,
+  SpacePad<tp::one<')'>>,
+  tp::star<tp::space>,
+  Expr
+> {};
+
 struct Literal : tp::sor<
   ArrayLiteral,
   StringLiteral,
   FPLiteral,
-  IntLiteral
+  IntLiteral,
+  LambdaLiteral
+> {};
+
+struct FCallParamBind : tp::seq<
+  tp::identifier, SpacePad<tp::one<'='>>, Expr
+> {};
+
+struct FCallParamBindList : tp::list<FCallParamBind, tp::one<','>> {};
+
+struct FCallExpr : tp::seq<
+  tp::identifier,
+  SpacePad<tp::one<'('>>, 
+  tp::opt<FCallParamBindList>,
+  SpacePad<tp::one<')'>>
 > {};
 
 struct UnaryOp : tp::one<
@@ -123,7 +172,7 @@ struct AssignStmt : tp::seq<
   AssignLeftHand, 
   SpacePad<tp::one<'='>>, 
   Expr,
-  tp::space,
+  tp::star<tp::space>,
   tp::one<';'>
 > {};
 
@@ -148,11 +197,16 @@ struct RetContext : tp::seq<
   tp::one<'}'>
 > {};
 struct Expr : tp::sor<
+  FCallExpr,
   RetContext,
   IfExpr,
   BinExpr,
   Term
 > {};
 
+struct File : tp::until<
+  tp::at<tp::eof>,
+  SpacePad<tp::must<Statement>>
+> {};
 
 }

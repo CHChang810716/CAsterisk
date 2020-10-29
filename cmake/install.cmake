@@ -59,3 +59,8 @@ if(INSTALL_DEPS)
         COMPONENT Dependencies
     )
 endif()
+
+install(
+    DIRECTORY src/test/data
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/test
+)

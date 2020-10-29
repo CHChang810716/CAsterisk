@@ -174,4 +174,3 @@ Syntax:
     <param-bind-list>?
   )
 ```
-example:

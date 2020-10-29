@@ -1,0 +1,2 @@
+c = 3;
+addmul = [c](a, b) (a + b) * c;
