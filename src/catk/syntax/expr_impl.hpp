@@ -1,6 +1,7 @@
 #pragma once
 
 #include <tao/pegtl.hpp>
+#include <tao/pegtl/contrib/parse_tree.hpp>
 
 #define TP_STR(str) TAO_PEGTL_STRING(str)
 #define TP_KW(str) TAO_PEGTL_KEYWORD(str)
@@ -170,16 +171,16 @@ struct StmtList : tp::list<
   Statement, 
   tp::star<tp::space>
 > {};
-
+struct RetStmt : tp::seq<
+  TP_STR("ret"), tp::star<tp::space>, 
+  Expr, tp::star<tp::space>, tp::one<';'>
+> {};
 struct RetContext : tp::seq<
   tp::one<'{'>,
   tp::star<tp::space>,
   tp::opt<StmtList>,
   tp::star<tp::space>,
-  tp::seq<
-    TP_STR("ret"), tp::star<tp::space>, 
-    Expr, tp::star<tp::space>, tp::one<';'>
-  >,
+  RetStmt,
   tp::star<tp::space>,
   tp::one<'}'>
 > {};
@@ -210,5 +211,31 @@ struct File : tp::until<
   tp::at<tp::eof>,
   SpacePad<tp::must<Statement>>
 > {};
+
+template<class Rule>
+using ASTSelector = tao::pegtl::parse_tree::selector<
+  Rule,
+  tao::pegtl::parse_tree::store_content::on<
+    BinOp, 
+    UnaryOp, 
+    StringLiteral,
+    LambdaLiteral,
+    ArrayLiteral,
+    FPLiteral,
+    IntLiteral, 
+    IfExpr,
+    UnaryExpr,
+    RetContext,
+    FCallExpr,
+    RetStmt,
+    AssignStmt,
+    FCallExpr,
+    CaptureItem,
+    Param,
+    FCallParamBind,
+    Expr,
+    tp::identifier
+  >
+>;
 
 }
