@@ -7,7 +7,7 @@ struct Action {
   template<class T>
   static void apply(const T& in, std::string& str) {
     str = in.string();
-    std::cout << str << std::endl;
+    // std::cout << str << std::endl;
   }
 };
 
@@ -236,9 +236,11 @@ TEST(stmt_test, basic_test) {
   auto stmt_0_str = "a = 3i32;";
   auto stmt_1_str = "a = foo();";
   auto stmt_2_str = "foo = fn [m, n]() 0i32;";
+  auto stmt_3_str = "foo = fn [m, n]() if(m) n else m;";
   tp::memory_input<> stmt_0(stmt_0_str, "");
   tp::memory_input<> stmt_1(stmt_1_str, "");
   tp::memory_input<> stmt_2(stmt_2_str, "");
+  tp::memory_input<> stmt_3(stmt_3_str, "");
 
   tp::memory_input<> not_stmt_0("a = 3i32", "");
   tp::memory_input<> not_stmt_1("foo();", "");
@@ -250,16 +252,18 @@ TEST(stmt_test, basic_test) {
   EXPECT_EQ(cap, stmt_1_str);
   tp::parse<RuleStmt, Action>(stmt_2, cap);
   EXPECT_EQ(cap, stmt_2_str);
+  tp::parse<RuleStmt, Action>(stmt_3, cap);
+  EXPECT_EQ(cap, stmt_3_str);
 
   EXPECT_ANY_THROW((tp::parse<RuleStmt, Action>(not_stmt_0, cap)));
   EXPECT_ANY_THROW((tp::parse<RuleStmt, Action>(not_stmt_1, cap)));
 
 }
 
-// TEST(expr_test, file_test) {
-//   using RuleFile = tp::must<catk::syntax::File>;
-//   auto f = avalon::app::test_data_dir() / "addmul.car";
-//   tp::file_input<> in(f.string());
-//   std::string cap;
-//   tp::parse<RuleFile, Action>(in, cap);
-// }
+TEST(file_test, addmul) {
+  using RuleFile = tp::must<catk::syntax::File>;
+  auto f = avalon::app::test_data_dir() / "addmul.car";
+  tp::file_input<> in(f.string());
+  std::string cap;
+  tp::parse<RuleFile, Action>(in, cap);
+}

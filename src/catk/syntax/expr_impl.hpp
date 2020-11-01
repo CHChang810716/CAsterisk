@@ -3,6 +3,7 @@
 #include <tao/pegtl.hpp>
 
 #define TP_STR(str) TAO_PEGTL_STRING(str)
+#define TP_KW(str) TAO_PEGTL_KEYWORD(str)
 
 namespace tp = tao::pegtl;
 
@@ -78,7 +79,7 @@ struct IfExpr : tp::if_must<
   Expr
 > {};
 
-struct ArrayLiteral : tp::if_must<
+struct ArrayLiteral : tp::seq<
   tp::one<'['>, 
   tp::opt<tp::list<Expr, tp::one<','>, tp::space>>,
   tp::one<']'>
@@ -108,8 +109,8 @@ struct CaptureList : tp::seq<
   tp::one<']'>
 > {};
 
-struct LambdaLiteral : tp::seq<
-  TP_STR("fn"),
+struct LambdaLiteral : tp::if_must<
+  TP_KW("fn"),
   tp::star<tp::space>,
   tp::opt<CaptureList>,
   SpacePad<tp::one<'('>>,
@@ -120,18 +121,18 @@ struct LambdaLiteral : tp::seq<
 > {};
 
 struct Literal : tp::sor<
-  ArrayLiteral,
   StringLiteral,
+  LambdaLiteral,
+  ArrayLiteral,
   FPLiteral,
-  IntLiteral,
-  LambdaLiteral
+  IntLiteral
 > {};
 
 struct FCallParamBind : tp::seq<
   tp::identifier, SpacePad<tp::one<'='>>, Expr
 > {};
 
-struct FCallParamBindList : tp::list<FCallParamBind, tp::one<','>> {};
+struct FCallParamBindList : tp::list<FCallParamBind, tp::one<','>, tp::space> {};
 
 struct FCallExpr : tp::seq<
   tp::identifier,
@@ -145,20 +146,6 @@ struct UnaryOp : tp::one<
 > {};
 
 struct UnaryExpr : tp::seq<UnaryOp, Expr> {};
-
-struct Term : tp::sor<
-  tp::identifier,
-  Literal,
-  UnaryExpr,
-  tp::seq<tp::one<'('>, SpacePad<Expr>, tp::one<')'>>
-> {};
-
-struct BinOp : tp::sor<
-  tp::one<'+', '-', '*', '/', '%', '&', '|', '^', '<', '>'>,
-  TP_STR("=="), TP_STR("<="), TP_STR(">="), TP_STR("!=")
-> {};
-
-struct BinExpr : tp::seq<Term, tp::pad<BinOp, tp::space>, Expr> {};
 
 struct AssignLeftHand : tp::list<
   tp::sor<
@@ -181,25 +168,40 @@ struct Statement : tp::sor<
 > {};
 struct StmtList : tp::list<
   Statement, 
-  tp::opt<tp::space>
+  tp::star<tp::space>
 > {};
 
 struct RetContext : tp::seq<
   tp::one<'{'>,
-  tp::opt<tp::space>,
+  tp::star<tp::space>,
   tp::opt<StmtList>,
-  tp::opt<tp::space>,
+  tp::star<tp::space>,
   tp::seq<
-    TP_STR("ret"), tp::space, 
-    Expr, tp::opt<tp::space>, tp::one<';'>
+    TP_STR("ret"), tp::star<tp::space>, 
+    Expr, tp::star<tp::space>, tp::one<';'>
   >,
-  tp::opt<tp::space>,
+  tp::star<tp::space>,
   tp::one<'}'>
 > {};
-struct Expr : tp::sor<
-  FCallExpr,
-  RetContext,
+
+struct Term : tp::sor<
   IfExpr,
+  tp::seq<tp::one<'('>, SpacePad<Expr>, tp::one<')'>>,
+  Literal,
+  UnaryExpr,
+  RetContext,
+  FCallExpr,
+  tp::identifier
+> {};
+
+struct BinOp : tp::sor<
+  tp::one<'+', '-', '*', '/', '%', '&', '|', '^', '<', '>'>,
+  TP_STR("=="), TP_STR("<="), TP_STR(">="), TP_STR("!=")
+> {};
+
+struct BinExpr : tp::seq<Term, tp::pad<BinOp, tp::space>, Expr> {};
+
+struct Expr : tp::sor<
   BinExpr,
   Term
 > {};
