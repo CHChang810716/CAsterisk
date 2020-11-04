@@ -22,3 +22,6 @@ find_package(Boost CONFIG COMPONENTS
     filesystem
     REQUIRED
 )
+
+hunter_add_package(fmt)
+find_package(fmt CONFIG COMPONENTS)

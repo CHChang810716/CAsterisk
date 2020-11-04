@@ -4,5 +4,6 @@ target_link_libraries(${AKT_TARGET} PUBLIC
     ${AKT_CHILD_TARGETS}
     Boost::filesystem
     Boost::system
+    fmt::fmt
 )
 akt_vscode_add_to_launch(${AKT_TARGET})

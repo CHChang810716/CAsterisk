@@ -1,9 +1,19 @@
 c = 3i64;
-addmul = fn [c](a, b) 
+addmul = fn (a, b) [c] {
+  ret if(a) 
+    (a + b) * c 
+  else if(b) {
+    ret c + b;
+  } else {
+    ret b;
+  }
+  ;
+};
+addmulsim = fn (a, b)
   if(a) 
     (a + b) * c 
-  else if(b) { 
-    ret c + b; 
+  else if(b) {
+    ret c + b;
   } else {
     ret b;
   }
