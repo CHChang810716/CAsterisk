@@ -209,8 +209,8 @@ TEST(expr_test, ret_context) {
 
 TEST(expr_test, def_func_test) {
   using RuleLambdaExpr = tao::pegtl::must<catk::syntax::LambdaLiteral>;
-  auto expr_0_str = "fn () 0i32";
-  auto expr_1_str = "fn (a) if(a) \"str\" else \"qqq\"";
+  auto expr_0_str = "fn () { ret 0i32; }";
+  auto expr_1_str = "fn (a) { ret if(a) \"str\" else \"qqq\"; }" ;
   auto expr_2_str = "fn (x, y) { ret x; }";
   auto expr_3_str = "fn (x, y) [m, n] { ret x; }";
   tao::pegtl::memory_input<> expr_0(expr_0_str, "");
@@ -239,7 +239,7 @@ TEST(stmt_test, basic_test) {
   using RuleStmt = tao::pegtl::must<catk::syntax::Statement>;
   auto stmt_0_str = "a = 3i32;";
   auto stmt_1_str = "a = foo();";
-  auto stmt_2_str = "foo = fn () 0i32;";
+  auto stmt_2_str = "foo = fn () { ret 0i32; };";
   auto stmt_3_str = "foo = fn () [m, n] { ret if(m) n else m; };";
   tao::pegtl::memory_input<> stmt_0(stmt_0_str, "");
   tao::pegtl::memory_input<> stmt_1(stmt_1_str, "");

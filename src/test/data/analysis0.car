@@ -1,0 +1,24 @@
+a = 0i32;
+b = 1i32;
+c = 2i32;
+
+r0 = [a,b,c] {
+  ret a + b * c;
+};
+
+r1 = if(a) {
+  ret b;
+} else [c] {
+  ret c;
+};
+
+addmul = fn (a, b) [c] {
+  ret if(a)
+    (a + b) * c 
+  else if(b) {
+    ret c + b;
+  } else {
+    ret b;
+  }
+  ;
+};

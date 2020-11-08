@@ -2,6 +2,8 @@
 
 #include <tao/pegtl.hpp>
 #include <tao/pegtl/contrib/parse_tree.hpp>
+#include "ast.hpp"
+#include <range/v3/view/drop_last.hpp>
 
 namespace catk::syntax {
 
@@ -89,7 +91,17 @@ struct Param : tao::pegtl::seq<
   tao::pegtl::opt<
     tao::pegtl::seq<SpacePad<tao::pegtl::one<'='>>, Expr>
   >
-> {};
+> {
+  static AST& left_id(AST& ast) {
+    assert(ast.is<Param>());
+    return *ast.children.at(0);
+  }
+  static AST& right_expr(AST& ast) {
+    assert(ast.is<Param>());
+    return *ast.children.at(1);
+  }
+
+};
 struct ParamList : tao::pegtl::list<Param, tao::pegtl::one<','>, tao::pegtl::space> {};
 
 struct CaptureItem : Identifier {};
@@ -107,7 +119,7 @@ struct CaptureList : tao::pegtl::seq<
   >,
   tao::pegtl::one<']'>
 > {};
-
+struct RetContext;
 struct LambdaLiteral : tao::pegtl::if_must<
   TAO_PEGTL_KEYWORD("fn"),
   tao::pegtl::star<tao::pegtl::space>,
@@ -115,8 +127,17 @@ struct LambdaLiteral : tao::pegtl::if_must<
   tao::pegtl::opt<ParamList>,
   SpacePad<tao::pegtl::one<')'>>,
   tao::pegtl::star<tao::pegtl::space>,
-  Expr
-> {};
+  RetContext
+> {
+  static auto& params(AST& ast) {
+    assert(ast.is<LambdaLiteral>());
+    return ast.children.at(0)->children; 
+  }
+  static AST& body(AST& ast) {
+    assert(ast.is<LambdaLiteral>());
+    return *ast.children.back();
+  }
+};
 
 struct Literal : tao::pegtl::sor<
   StringLiteral,
@@ -159,7 +180,19 @@ struct AssignStmt : tao::pegtl::seq<
   Expr,
   tao::pegtl::star<tao::pegtl::space>,
   tao::pegtl::one<';'>
-> {};
+> {
+  static AST& left_list(AST& as) {
+    assert(as.is<AssignStmt>());
+    return *as.children.at(0);
+  }
+  static AST& right_expr(AST& as) {
+    assert(as.is<AssignStmt>());
+    return *as.children.at(1);
+  }
+  static auto& left_values(AST& as) {
+    return as.children.at(0)->children;
+  }
+};
 
 struct Statement : tao::pegtl::sor<
   AssignStmt
@@ -204,12 +237,15 @@ struct BinExpr : tao::pegtl::seq<Term, tao::pegtl::pad<BinOp, tao::pegtl::space>
 struct Expr : tao::pegtl::sor<
   BinExpr,
   Term
-> {};
+> {
+
+};
 
 struct File : tao::pegtl::until<
   tao::pegtl::at<tao::pegtl::eof>,
   SpacePad<tao::pegtl::must<Statement>>
-> {};
+> {
+};
 
 
 template<class Rule>
@@ -231,6 +267,7 @@ using ASTSelector = tao::pegtl::parse_tree::selector<
     AssignStmt,
     FCallExpr,
     CaptureItem,
+    ParamList,
     Param,
     FCallParamBind,
     Expr,

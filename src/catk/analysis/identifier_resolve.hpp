@@ -23,20 +23,31 @@ private:
 
 constexpr struct IdentifierResolve {
   void operator()(syntax::AST& ast, Context* ctx = nullptr) const {
+    // std::cout << (ast.is_root() ? std::string("ROOT") : ast.name()) << std::endl;
     assert(ast.is_root() || ctx != nullptr);
     if(ast.is_root()) {
       assert(ctx == nullptr);
-      auto ctx_ptr = ast.get_ext<Context>();
-      apply_children(ast, ctx_ptr.get());
+      auto& ctx_ext = ast.get_ext<ContextExt>();
+      apply_children(ast, &ctx_ext.get_ctx());
       return;
+    } else if(ast.is<syntax::LambdaLiteral>()) {
+      auto& lambda_ctx = ast.get_ext<LambdaExt>().get_ctx();
+      auto& params = syntax::LambdaLiteral::params(ast);
+      for(auto& pm : params) {
+        auto& id_ast = syntax::Param::left_id(*pm);
+        auto& ext = id_ast.set_ext<IdentifierExt>();
+        auto& entry = lambda_ctx.create_symbol(id_ast.string());
+        entry.set_def(id_ast);
+        ext.set_symbol(entry);
+      }
+      apply_children(syntax::LambdaLiteral::body(ast), &lambda_ctx);
     } else if(ast.is<syntax::RetContext>()) {
-      auto ctx_ptr = ast.get_ext<Context>();
-      apply_children(ast, ctx_ptr.get());
+      auto& ctx_ext = ast.get_ext<ContextExt>();
+      apply_children(ast, &ctx_ext.get_ctx());
       return;
-    } else if(ast.is<syntax::AssignStmt>()) {
-      auto& l_hand = ast.children.at(0);
-      auto& r_expr = ast.children.at(1);
-      for(auto&& lh_ch : l_hand->children) {
+    } else if(ast.is<syntax::AssignStmt>()) { 
+      auto& r_expr = syntax::AssignStmt::right_expr(ast);
+      for(auto&& lh_ch : syntax::AssignStmt::left_values(ast)) {
         if(lh_ch->is<syntax::IgnoredLval>()) continue;
         if(lh_ch->is<syntax::Identifier>()) {
           auto& ext = lh_ch->set_ext<IdentifierExt>();
@@ -49,7 +60,7 @@ constexpr struct IdentifierResolve {
           ext.set_symbol(entry);
         }
       }
-      apply_children(*r_expr, ctx);
+      apply_children(r_expr, ctx);
       return;
     } else if(ast.is<syntax::Identifier>()) {
       auto symname = ast.string();

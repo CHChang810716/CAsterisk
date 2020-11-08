@@ -25,3 +25,6 @@ find_package(Boost CONFIG COMPONENTS
 
 hunter_add_package(fmt)
 find_package(fmt CONFIG COMPONENTS)
+
+hunter_add_package(range-v3)
+find_package(range-v3)

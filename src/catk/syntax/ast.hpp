@@ -18,8 +18,8 @@ struct AST : public tao::pegtl::parse_tree::basic_node<AST> {
     return *tmp;
   }
   template<class T>
-  auto get_ext() {
-    return std::dynamic_pointer_cast<T>(ext_);
+  auto& get_ext() {
+    return *std::dynamic_pointer_cast<T>(ext_);
   }
 private:
   std::shared_ptr<ASTExt> ext_;

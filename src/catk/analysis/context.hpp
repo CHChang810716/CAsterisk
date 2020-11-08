@@ -24,6 +24,11 @@ struct Context {
     auto res = symbols_.emplace_hint(iter, name.data(), Symbol(name.data()));
     return {false, res->second};
   }
+  Symbol& create_symbol(const std::string_view& name) {
+    assert(symbols_.find(name.data()) == symbols_.end());
+    auto [iter, found] = symbols_.emplace(name.data(), Symbol(name.data()));
+    return iter->second;
+  }
   Symbol* get_symbol(const std::string_view& name) {
     auto iter = symbols_.find(name.data());
     if(iter != symbols_.end()) {
@@ -38,9 +43,11 @@ struct Context {
     child->parent_ = this;
     children_.push_back(child);
   }
+  const Children& children() const {
+    return children_;
+  }
 private:
   Children  children_               ;
-  ASTPtr    ast_ref_    { nullptr } ;
   SymTable  symbols_                ;
   Context*  parent_     { nullptr } ;
 };
