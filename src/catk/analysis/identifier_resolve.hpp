@@ -4,22 +4,8 @@
 #include <typeinfo>
 #include <catk/syntax.hpp>
 #include <fmt/format.h>
+#include "ast_ext.hpp"
 namespace catk::analysis {
-
-struct IdentifierExt : public syntax::ASTExt {
-  virtual const std::type_info& get_rt_type_info() const {
-    return typeid(IdentifierExt);
-  }
-  Symbol& get_symbol() {
-    assert(symbol_ != nullptr);
-    return *symbol_;
-  }
-  void set_symbol(Symbol& symbol) {
-    symbol_ = &symbol;
-  }
-private:
-  Symbol* symbol_ { nullptr };
-};
 
 constexpr struct IdentifierResolve {
   void operator()(syntax::AST& ast, Context* ctx = nullptr) const {

@@ -2,6 +2,7 @@
 #include <catk/analysis/identifier_resolve.hpp>
 #include <gtest/gtest.h>
 #include <avalon/app/path.hpp>
+#include <catk/analysis/typeindex.hpp>
 
 TEST(analysis_test, context_resolve_test) {
   using RuleFile = tao::pegtl::must<catk::syntax::File>;

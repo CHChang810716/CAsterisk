@@ -2,21 +2,9 @@
 #include "context.hpp"
 #include <catk/syntax.hpp>
 #include <iostream>
+#include "ast_ext.hpp"
 namespace catk::analysis {
 
-struct ContextExt : public syntax::ASTExt {
-  virtual const std::type_info& get_rt_type_info() const {
-    return typeid(ContextExt);
-  }
-  void set_ctx(ContextPtr ctx) {
-    ref_ctx_ = std::move(ctx);
-  }
-  Context& get_ctx() {
-    return *ref_ctx_;
-  }
-private:
-  ContextPtr ref_ctx_ {nullptr};
-};
 using LambdaExt = ContextExt;
 constexpr struct ContextResolve {
   void operator()(syntax::AST& ast) const {
