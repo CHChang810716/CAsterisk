@@ -4,6 +4,8 @@
 #include <avalon/app/path.hpp>
 #include <catk/analysis/typeindex.hpp>
 
+using namespace catk::analysis;
+
 TEST(analysis_test, context_resolve_test) {
   using RuleFile = tao::pegtl::must<catk::syntax::File>;
   auto f = avalon::app::test_data_dir() / "analysis0.car";
@@ -60,4 +62,33 @@ TEST(analysis_test, symbol_resolve_test) {
   EXPECT_EQ(c3_0->get_symbol("c"), root_ctx.get_symbol("c"));
   EXPECT_EQ(c3_0->get_symbol("b"), c3->get_symbol("b"));
   EXPECT_EQ(c3_1->get_symbol("b"), c3->get_symbol("b"));
+}
+TEST(analysis_test, typeindex_test) {
+  TypeIndex ti;
+  auto int32 = ti.add("int32");
+  EXPECT_EQ(int32.name, "int32");
+  EXPECT_EQ(int32.id, 0);
+  auto int64 = ti.add("int64");
+  EXPECT_EQ(int64.name, "int64");
+  EXPECT_EQ(int64.id, 1);
+  auto _double = ti.add("double");
+  EXPECT_EQ(_double.name, "double");
+  EXPECT_EQ(_double.id, 2);
+  auto _float = ti.add("float");
+  EXPECT_EQ(_float.name, "float");
+  EXPECT_EQ(_float.id, 3);
+
+  auto t0 = ti.get_by_id(2);
+  EXPECT_EQ(t0.name, _double.name);
+
+  auto t1 = ti.get_by_id(0);
+  EXPECT_EQ(t1.name, int32.name);
+
+  EXPECT_ANY_THROW(ti.get_by_id(4));
+
+  auto t2 = ti.get_by_name("double");
+  EXPECT_EQ(t2.id, _double.id);
+  EXPECT_EQ(t2.name, _double.name);
+
+  EXPECT_ANY_THROW(ti.get_by_name("string"));
 }

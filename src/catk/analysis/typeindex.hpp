@@ -9,17 +9,23 @@
 namespace catk::analysis {
 
 struct Type {
-  const std::string   name  ;
-  const std::uint64_t id    ; // max number if not found
-  bool valid() const { return id < std::numeric_limits<std::uint64_t>::max(); }
+  const std::string        name  ;
+  const std::uint64_t      id    ; // max number if not found
+  bool valid() const { 
+    return id < std::numeric_limits<std::uint64_t>::max(); 
+  }
 };
 struct TypeIndex {
   TypeIndex()
   : impl_(new TypeIndexImpl())
   {}
-  void add(const std::string_view& type_name) {
+  Type add(const std::string_view& type_name) {
     impl_->table_.push_back(type_name.data());
     impl_->index_.emplace(impl_->table_.size() - 1);
+    return Type {
+      impl_->table_.back(), 
+      impl_->table_.size() - 1
+    };
   }
   Type get_by_name(const std::string_view& name) const {
     __search_target() = name;
@@ -28,7 +34,10 @@ struct TypeIndex {
       throw std::invalid_argument(
         fmt::format("type name: {} not found", name.data())
       ); // return Type { "", std::numeric_limits<std::uint64_t>::max() };
-    return Type { std::move(__search_target()), *iter };
+    return Type { 
+      impl_->table_[*iter], 
+      *iter 
+    };
   }
   Type get_by_id(const std::uint64_t& id) const {
     auto& name = impl_->table_.at(id);
