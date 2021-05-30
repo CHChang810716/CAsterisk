@@ -1,3 +1,1 @@
-#pragma once
-#include "analysis/context_resolve.hpp"
-#include "analysis/identifier_resolve.hpp"
+#include "analysis/forward_decl.hpp"

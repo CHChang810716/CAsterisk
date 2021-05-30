@@ -1,7 +1,7 @@
 #include <catk/syntax.hpp>
 #include <tao/pegtl/contrib/parse_tree_to_dot.hpp>
 #include <iostream>
-#include <catk/analysis.hpp>
+#include <catk/utils.hpp>
 int main(int argc, char *argv[]) {
   using RuleFile = tao::pegtl::must<catk::syntax::File>;
   if(argc < 2) { return 1; }
@@ -11,8 +11,8 @@ int main(int argc, char *argv[]) {
     catk::syntax::AST, 
     catk::syntax::ASTSelector
   >(in);
-  // tao::pegtl::parse_tree::print_dot(std::cerr, *root);
-  catk::analysis::context_resolve(*root);
-  catk::analysis::Identifier_resolve(*root);
+  catk::print_dot(std::cerr, *root);
+  // catk::analysis::context_resolve(*root);
+  // catk::analysis::Identifier_resolve(*root);
 
 }
