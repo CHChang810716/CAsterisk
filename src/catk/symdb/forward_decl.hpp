@@ -1,6 +1,9 @@
 #pragma once
 #include <deque>
 #include <cinttypes>
+#include <variant>
+#include <string>
+
 namespace catk::symdb {
 
 struct Symbol;
@@ -22,9 +25,22 @@ PrimaryTypes operator++(PrimaryTypes& x);
 PrimaryTypes operator*(PrimaryTypes c); 
 PrimaryTypes begin(PrimaryTypes r); 
 PrimaryTypes end(PrimaryTypes r);
+
+using PrimaryUnion = std::variant<
+  std::int8_t,
+  std::int16_t,
+  std::int32_t,
+  std::int64_t,
+  std::uint8_t,
+  std::uint16_t,
+  std::uint32_t,
+  std::uint64_t,
+  float,
+  double,
+  std::string
+>;
 }
 namespace catk {
-
 
 template<class Malloc = std::allocator<symdb::Symbol>> struct SymDB;
 

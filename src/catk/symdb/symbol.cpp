@@ -1,4 +1,5 @@
 #include "symbol.hpp"
+#include <catk/utils.hpp>
 namespace catk::symdb {
 
 Symbol::Symbol()
@@ -43,4 +44,6 @@ void Symbol::set_string(bool b)      { if(b) is_string_     = 0x1; else is_strin
 void Symbol::set_solid(bool b)       { if(b) is_solid_      = 0x1; else is_solid_      = 0x0;  }
 void Symbol::set_module(bool b)      { if(b) is_module_     = 0x1; else is_module_     = 0x0;  }
 void Symbol::set_expr(bool b)        { if(b) is_expr_       = 0x1; else is_expr_       = 0x0;  }
+
+
 }

@@ -4,10 +4,12 @@
 namespace catk {
 
 using ASTPtr = syntax::AST*;
-
+struct InternalBug : std::runtime_error {
+   using std::runtime_error::runtime_error;
+};
 constexpr auto rt_assert = [](bool b, const std::string& string) {
   if(!b) {
-    throw std::runtime_error(string);
+    throw InternalBug(string);
   }
 };
 template<class OS>

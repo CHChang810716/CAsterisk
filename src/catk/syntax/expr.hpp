@@ -29,7 +29,18 @@ struct HexIntLiteral : tao::pegtl::if_must<
 struct IntLiteral : tao::pegtl::sor<
   tao::pegtl::seq<DecIntLiteral, IntTag>,
   tao::pegtl::seq<HexIntLiteral, IntTag>
-> {};
+> {
+  template<class T>
+  static auto& literal(T& ast) {
+    assert(ast.template is<IntLiteral>());
+    return *ast.children.at(0);
+  }
+  template<class T>
+  static auto& tag(T& ast) {
+    assert(ast.template is<IntLiteral>());
+    return *ast.children.at(1);
+  }
+};
 
 
 struct FPTag : tao::pegtl::sor<
@@ -47,7 +58,18 @@ struct FPLiteralV1 : tao::pegtl::seq<
 struct FPLiteral : tao::pegtl::sor<
   tao::pegtl::seq<FPLiteralV0, FPTag>,
   tao::pegtl::seq<FPLiteralV1, FPTag>
-> {};
+> {
+  template<class T>
+  static auto& literal(T& ast) {
+    assert(ast.template is<FPLiteral>());
+    return *ast.children.at(0);
+  }
+  template<class T>
+  static auto& tag(T& ast) {
+    assert(ast.template is<FPLiteral>());
+    return *ast.children.at(1);
+  }
+};
 
 struct EscapedChar : tao::pegtl::one< '"', '\\', '/', 'b', 'f', 'n', 'r', 't', '0' > {};
 struct Escaped : tao::pegtl::sor< EscapedChar /*, unicode */ > {};
@@ -92,12 +114,14 @@ struct Param : tao::pegtl::seq<
     tao::pegtl::seq<SpacePad<tao::pegtl::one<'='>>, Expr>
   >
 > {
-  static AST& left_id(AST& ast) {
-    assert(ast.is<Param>());
+  template<class T>
+  static auto& left_id(T& ast) {
+    assert(ast.template is<Param>());
     return *ast.children.at(0);
   }
-  static AST& right_expr(AST& ast) {
-    assert(ast.is<Param>());
+  template<class T>
+  static auto& right_expr(T& ast) {
+    assert(ast.template is<Param>());
     return *ast.children.at(1);
   }
 
@@ -129,12 +153,14 @@ struct LambdaLiteral : tao::pegtl::if_must<
   tao::pegtl::star<tao::pegtl::space>,
   RetContext
 > {
-  static auto& params(AST& ast) {
-    assert(ast.is<LambdaLiteral>());
+  template<class T>
+  static auto& params(T& ast) {
+    assert(ast.template is<LambdaLiteral>());
     return ast.children.at(0)->children; 
   }
-  static AST& body(AST& ast) {
-    assert(ast.is<LambdaLiteral>());
+  template<class T>
+  static auto& body(T& ast) {
+    assert(ast.template is<LambdaLiteral>());
     return *ast.children.back();
   }
 };
@@ -181,16 +207,19 @@ struct AssignStmt : tao::pegtl::seq<
   tao::pegtl::star<tao::pegtl::space>,
   tao::pegtl::one<';'>
 > {
-  static AST& left_list(AST& as) {
-    assert(as.is<AssignStmt>());
-    return *as.children.at(0);
+  template<class T>
+  static auto& left_list(T& ast) {
+    assert(ast.template is<AssignStmt>());
+    return *ast.children.at(0);
   }
-  static AST& right_expr(AST& as) {
-    assert(as.is<AssignStmt>());
-    return *as.children.at(1);
+  template<class T>
+  static auto& right_expr(T& ast) {
+    assert(ast.template is<AssignStmt>());
+    return *ast.children.at(1);
   }
-  static auto& left_values(AST& as) {
-    return as.children.at(0)->children;
+  template<class T>
+  static auto& left_values(T& ast) {
+    return ast.children.at(0)->children;
   }
 };
 
@@ -257,23 +286,34 @@ using ASTSelector = tao::pegtl::parse_tree::selector<
     StringLiteral,
     LambdaLiteral,
     ArrayLiteral,
-    FPLiteral,
+
+    DecIntLiteral,
+    HexIntLiteral,
+    IntTag,
     IntLiteral, 
-    IfExpr,
+
+    FPLiteralV0,
+    FPLiteralV1,
+    FPTag,
+    FPLiteral,
+
+    Identifier,
+
+    Expr,
     UnaryExpr,
-    RetContext,
+    BinExpr,
+    IfExpr,
     FCallExpr,
+
+    RetContext,
     RetStmt,
     AssignStmt,
-    FCallExpr,
     CaptureItem,
     ParamList,
     Param,
     FCallParamBind,
-    Expr,
     AssignLeftHand,
-    IgnoredLval,
-    Identifier
+    IgnoredLval
   >
 >;
 

@@ -22,7 +22,7 @@ struct Type {
   Type() 
   : deref         (nullptr)
   , bits          (32)
-  , id            (CATK_INT32)
+  // , id            (CATK_INT32)
   , is_primary_   (1)
   , is_pointer_   (0)
   , is_aggregate_ (0)
@@ -48,7 +48,7 @@ struct Type {
 
   Type*           deref   ;
   std::uint32_t   bits    ;
-  std::uint32_t   id      ;
+  // std::uint32_t   id      ;
 
 private:
   bool is_what(const std::int64_t& what) const {

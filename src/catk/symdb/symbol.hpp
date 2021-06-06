@@ -2,7 +2,7 @@
 #include <cstdint>
 #include <vector>
 #include <string>
-#include <map>
+#include <unordered_map>
 #include "type.hpp"
 #include <catk/syntax/ast.hpp>
 #include "forward_decl.hpp"
@@ -30,6 +30,7 @@ struct Symbol {
   void set_solid(bool b)      ; 
   void set_module(bool b)     ; 
   void set_expr(bool b)       ; 
+
 private:
   std::uint64_t 
     is_locatable_   : 1,
@@ -45,19 +46,20 @@ private:
     is_expr_        : 1
   ;
 
+
 public:
   SymDB<>*                    db                  ;
   std::vector<Symbol*>        children            ;
   std::vector<Symbol*>        related             ;
   Symbol*                     parent              ;
-  std::map<
+  std::unordered_map<
     std::string,
     Symbol*
   >                           accessable          ;
   Type*                       type                ;
   const catk::syntax::AST*    ast                 ;
   std::string                 name                ;
-
+  PrimaryUnion                content             ;
 };
 
 }
