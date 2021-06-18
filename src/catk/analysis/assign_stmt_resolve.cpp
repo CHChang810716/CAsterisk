@@ -38,19 +38,27 @@ void string_def_resolve(const syntax::AST& left, const syntax::AST& right, symdb
   left.set_symbol(id);
   right.set_symbol(literal);
 }
-void assign_stmt_resolve(const syntax::AST& ast, symdb::Symbol* parent) {
+
+void lambda_assign_stmt_resolve(
+  const syntax::AST& ast, 
+  symdb::Symbol* parent
+) {
   auto& left_vals = syntax::AssignStmt::left_values(ast);
   auto& expr = syntax::AssignStmt::right_expr(ast);
-
-  if(expr.is<syntax::StringLiteral>()) {
-    throw_if_bad_left_numbers(left_vals, 1, "string literal");
-    auto& decl = left_vals[0];
-    string_def_resolve(*decl, expr, parent);
-  }
   if(expr.is<syntax::LambdaLiteral>()) {
     throw_if_bad_left_numbers(left_vals, 1, "lambda literal");
     auto& decl = left_vals[0];
     lambda_def_resolve(*decl, expr, parent);
+  }
+}
+
+void value_assign_stmt_resolve(const syntax::AST& ast, symdb::Symbol* parent) {
+  auto& left_vals = syntax::AssignStmt::left_values(ast);
+  auto& expr = syntax::AssignStmt::right_expr(ast);
+  if(expr.is<syntax::StringLiteral>()) {
+    throw_if_bad_left_numbers(left_vals, 1, "string literal");
+    auto& decl = left_vals[0];
+    string_def_resolve(*decl, expr, parent);
   }
   if(expr.is<syntax::FPLiteral>()) {
     throw_if_bad_left_numbers(left_vals, 1, "float literal");
