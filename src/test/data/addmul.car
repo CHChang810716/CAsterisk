@@ -1,0 +1,15 @@
+c = 3i64;
+addmul = fn (a, b) [c] {
+  ret if(a) 
+    (a + b) * c 
+  else if(b) {
+    ret c + b;
+  } else {
+    ret b;
+  }
+  ;
+};
+x = addmul(
+  a = c, 
+  b = 0i64
+);

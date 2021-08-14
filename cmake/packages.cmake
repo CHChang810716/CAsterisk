@@ -7,26 +7,25 @@ if(BUILD_TEST)
 endif()
 find_package(Threads REQUIRED)
 
-# Boost
-# hunter_add_package(Boost COMPONENTS 
-#     iostreams
-#     program_options
-#     serialization
-#     system
-#     filesystem
-# )
-# find_package(Boost CONFIG REQUIRED COMPONENTS
-#     iostreams
-#     program_options
-#     serialization
-#     system
-#     filesystem
-# )
+hunter_add_package(LLVM)
+find_package(LLVM CONFIG REQUIRED)
+llvm_map_components_to_libnames(llvm_libs support core irreader)
 
-# OpenCV
-# hunter_add_package(OpenCV)
-# find_package(OpenCV CONFIG REQUIRED)
+hunter_add_package(pegtl)
+find_package(pegtl CONFIG REQUIRED)
 
-# json
-# hunter_add_package(nlohmann_json)
-# find_package(nlohmann_json CONFIG REQUIRED)
+hunter_add_package(Boost COMPONENTS 
+    system
+    filesystem
+)
+find_package(Boost CONFIG COMPONENTS
+    system
+    filesystem
+    REQUIRED
+)
+
+hunter_add_package(fmt)
+find_package(fmt CONFIG COMPONENTS)
+
+hunter_add_package(range-v3)
+find_package(range-v3)
