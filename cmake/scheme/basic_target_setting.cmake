@@ -3,6 +3,7 @@ target_include_directories(${AKT_TARGET} PUBLIC
     $<INSTALL_INTERFACE:include>
 )
 akt_show_var(AKT_IMPORTED_TARGETS)
+list(REMOVE_ITEM AKT_IMPORTED_TARGETS "LTO")
 target_link_libraries(${AKT_TARGET} PRIVATE ${AKT_IMPORTED_TARGETS} ${AKT_IMPORTED_TARGETS})
 if(GCC)
     target_compile_options(${AKT_TARGET} PUBLIC -ftemplate-backtrace-limit=0)

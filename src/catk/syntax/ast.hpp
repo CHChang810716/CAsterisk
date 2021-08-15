@@ -6,6 +6,7 @@ namespace catk::syntax {
 
 struct AST : public tao::pegtl::parse_tree::basic_node<AST> {
   using Base = tao::pegtl::parse_tree::basic_node<AST>;
+  using Children = Base::children_t;
   void set_symbol(const symdb::Symbol& sym) const {
     sym_ = &sym;
   }

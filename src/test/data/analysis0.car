@@ -3,7 +3,8 @@ b = 1i32;
 c = 2i32;
 
 r0 = [a,b,c] {
-  ret a + b * c;
+  x = a + b;
+  ret x * c;
 };
 
 r1 = if(a) {
@@ -13,6 +14,16 @@ r1 = if(a) {
 };
 
 addmul = fn (a, b) [c] {
+  ret if(a)
+    (a + b) * c 
+  else if(b) {
+    ret c + b;
+  } else {
+    ret b;
+  }
+  ;
+};
+addmul2 = fn (a, b) {
   ret if(a)
     (a + b) * c 
   else if(b) {

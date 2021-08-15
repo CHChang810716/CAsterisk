@@ -143,27 +143,7 @@ struct CaptureList : tao::pegtl::seq<
   >,
   tao::pegtl::one<']'>
 > {};
-struct RetContext;
-struct LambdaLiteral : tao::pegtl::if_must<
-  TAO_PEGTL_KEYWORD("fn"),
-  tao::pegtl::star<tao::pegtl::space>,
-  SpacePad<tao::pegtl::one<'('>>,
-  tao::pegtl::opt<ParamList>,
-  SpacePad<tao::pegtl::one<')'>>,
-  tao::pegtl::star<tao::pegtl::space>,
-  RetContext
-> {
-  template<class T>
-  static auto& params(T& ast) {
-    assert(ast.template is<LambdaLiteral>());
-    return ast.children.at(0)->children; 
-  }
-  template<class T>
-  static auto& body(T& ast) {
-    assert(ast.template is<LambdaLiteral>());
-    return *ast.children.back();
-  }
-};
+struct LambdaLiteral;
 
 struct Literal : tao::pegtl::sor<
   StringLiteral,
@@ -234,17 +214,65 @@ struct RetStmt : tao::pegtl::seq<
   TAO_PEGTL_STRING("ret"), tao::pegtl::star<tao::pegtl::space>, 
   Expr, tao::pegtl::star<tao::pegtl::space>, tao::pegtl::one<';'>
 > {};
-struct RetContext : tao::pegtl::seq<
-  tao::pegtl::opt<CaptureList>,
-  tao::pegtl::star<tao::pegtl::space>,
-  tao::pegtl::one<'{'>,
+struct ContextStmts : tao::pegtl::seq<
   tao::pegtl::star<tao::pegtl::space>,
   tao::pegtl::opt<StmtList>,
   tao::pegtl::star<tao::pegtl::space>,
   RetStmt,
-  tao::pegtl::star<tao::pegtl::space>,
-  tao::pegtl::one<'}'>
+  tao::pegtl::star<tao::pegtl::space>
 > {};
+struct RetContext : tao::pegtl::seq<
+  tao::pegtl::opt<CaptureList>,
+  tao::pegtl::star<tao::pegtl::space>,
+  tao::pegtl::one<'{'>,
+  ContextStmts,
+  tao::pegtl::one<'}'>
+> {
+  template<class T>
+  static auto* capture_list(T& ast) {
+    assert(ast.template is<RetContext>());
+    if(ast.children.at(0)->template is<CaptureList>()) {
+      return ast.children.at(0).get();
+    } else {
+      return (AST*)nullptr;
+    }
+  }
+  template<class T>
+  static auto& stmts(T& ast) {
+    assert(ast.template is<RetContext>());
+    return *ast.children.back();
+  }
+};
+struct LambdaLiteral : tao::pegtl::if_must<
+  TAO_PEGTL_KEYWORD("fn"),
+  tao::pegtl::star<tao::pegtl::space>,
+  SpacePad<tao::pegtl::one<'('>>,
+  tao::pegtl::opt<ParamList>,
+  SpacePad<tao::pegtl::one<')'>>,
+  tao::pegtl::star<tao::pegtl::space>,
+  RetContext
+> {
+  template<class T>
+  static auto& params(T& ast) {
+    assert(ast.template is<LambdaLiteral>());
+    return ast.children.at(0)->children; 
+  }
+  template<class T>
+  static auto& body(T& ast) {
+    assert(ast.template is<LambdaLiteral>());
+    return *ast.children.back();
+  }
+  template<class T>
+  static auto capture_list(T& ast) {
+    assert(ast.template is<LambdaLiteral>());
+    return RetContext::capture_list(body(ast));
+  }
+  template<class T>
+  static auto& stmts(T& ast) {
+    assert(ast.template is<LambdaLiteral>());
+    return RetContext::stmts(body(ast));
+  }
+};
 
 struct Term : tao::pegtl::sor<
   IfExpr,
@@ -307,7 +335,9 @@ using ASTSelector = tao::pegtl::parse_tree::selector<
 
     RetContext,
     RetStmt,
+    ContextStmts,
     AssignStmt,
+    CaptureList,
     CaptureItem,
     ParamList,
     Param,

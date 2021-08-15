@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
     catk::syntax::ASTSelector
   >(in);
   catk::print_dot(std::cerr, *root);
-  // catk::analysis::context_resolve(*root);
-  // catk::analysis::Identifier_resolve(*root);
+  // catk::analysis::context(*root);
+  // catk::analysis::Identifier(*root);
 
 }

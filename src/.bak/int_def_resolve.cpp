@@ -3,9 +3,9 @@
 #include "forward_decl.hpp"
 #include <catk/utils.hpp>
 #include <boost/lexical_cast.hpp>
-namespace catk::analysis {
+namespace catk::analysis::alloc_sym_dep {
 
-static auto int_type_resolve(const syntax::AST& right) {
+static auto int_type(const syntax::AST& right) {
   using Func   = std::function<void(symdb::PrimaryUnion&, const syntax::AST&)>;
   using IntMap = std::unordered_map<
     std::string, std::tuple<
@@ -64,11 +64,11 @@ static auto int_type_resolve(const syntax::AST& right) {
   return tag_to_type.at(tag.content());
 }
 
-void int_def_resolve(const syntax::AST& left, const syntax::AST& right, symdb::Symbol* parent) {
+void int_def(const syntax::AST& left, const syntax::AST& right, symdb::Symbol* parent) {
   auto& sym_db = catk::get_sym_db();
   auto& type_db = catk::get_type_db();
   auto& id = *sym_db.alloc(); 
-  auto [ptype, caster] = int_type_resolve(right);
+  auto [ptype, caster] = int_type(right);
   auto& type = *ptype;
 
   id.set_locatable(true);

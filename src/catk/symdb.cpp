@@ -14,7 +14,6 @@ TypeDB<>& get_type_db() {
     }
     for(const auto& ept : symdb::PrimaryTypes()) {
       symdb::Type pt;
-      pt.deref  = nullptr;
       pt.bits   = symdb::primary_type_bits(ept);
       // pt.id     = ept;
       pt.set_primary(true);

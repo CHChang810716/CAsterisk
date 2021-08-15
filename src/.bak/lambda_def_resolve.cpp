@@ -2,9 +2,9 @@
 #include <catk/symdb.hpp>
 #include <atomic>
 #include <fmt/format.h>
-namespace catk::analysis {
+namespace catk::analysis::alloc_sym_dep {
 
-void lambda_def_resolve(const syntax::AST& decl, const syntax::AST& expr, symdb::Symbol* parent) {
+void lambda_def(const syntax::AST& decl, const syntax::AST& expr, symdb::Symbol* parent) {
   static std::atomic_int g_lambda_id = 0;
   auto& sym_db = catk::get_sym_db();
   auto& type_db = catk::get_type_db();

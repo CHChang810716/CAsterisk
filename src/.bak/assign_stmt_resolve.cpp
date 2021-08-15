@@ -1,7 +1,8 @@
 #include <catk/syntax.hpp>
 #include <catk/symdb.hpp>
 #include "forward_decl.hpp"
-namespace catk::analysis {
+#include <fmt/format.h>
+namespace catk::analysis::alloc_sym_dep {
 
 template<class Left>
 void throw_if_bad_left_numbers(const Left& left, std::size_t n, const std::string& label) {
@@ -13,7 +14,7 @@ void throw_if_bad_left_numbers(const Left& left, std::size_t n, const std::strin
     );
   } 
 }
-void string_def_resolve(const syntax::AST& left, const syntax::AST& right, symdb::Symbol* parent) {
+void string_def(const syntax::AST& left, const syntax::AST& right, symdb::Symbol* parent) {
   auto& sym_db = catk::get_sym_db();
   auto& type_db = catk::get_type_db();
   auto& str_type = type_db[symdb::CATK_STRING];
@@ -39,7 +40,7 @@ void string_def_resolve(const syntax::AST& left, const syntax::AST& right, symdb
   right.set_symbol(literal);
 }
 
-void lambda_assign_stmt_resolve(
+void lambda_assign_stmt(
   const syntax::AST& ast, 
   symdb::Symbol* parent
 ) {
@@ -48,27 +49,27 @@ void lambda_assign_stmt_resolve(
   if(expr.is<syntax::LambdaLiteral>()) {
     throw_if_bad_left_numbers(left_vals, 1, "lambda literal");
     auto& decl = left_vals[0];
-    lambda_def_resolve(*decl, expr, parent);
+    lambda_def(*decl, expr, parent);
   }
 }
 
-void value_assign_stmt_resolve(const syntax::AST& ast, symdb::Symbol* parent) {
+void value_assign_stmt(const syntax::AST& ast, symdb::Symbol* parent) {
   auto& left_vals = syntax::AssignStmt::left_values(ast);
   auto& expr = syntax::AssignStmt::right_expr(ast);
   if(expr.is<syntax::StringLiteral>()) {
     throw_if_bad_left_numbers(left_vals, 1, "string literal");
     auto& decl = left_vals[0];
-    string_def_resolve(*decl, expr, parent);
+    string_def(*decl, expr, parent);
   }
   if(expr.is<syntax::FPLiteral>()) {
     throw_if_bad_left_numbers(left_vals, 1, "float literal");
     auto& decl = left_vals[0];
-    float_def_resolve(*decl, expr, parent);
+    float_def(*decl, expr, parent);
   }
   if(expr.is<syntax::IntLiteral>()) {
     throw_if_bad_left_numbers(left_vals, 1, "integer literal");
     auto& decl = left_vals[0];
-    int_def_resolve(*decl, expr, parent);
+    int_def(*decl, expr, parent);
   }
   if(expr.is<syntax::Expr>()) {
   }

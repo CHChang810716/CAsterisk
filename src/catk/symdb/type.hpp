@@ -20,9 +20,7 @@ constexpr auto primary_type_bits = [](auto enum_id) {
 };
 struct Type {
   Type() 
-  : deref         (nullptr)
-  , bits          (32)
-  // , id            (CATK_INT32)
+  : bits          (32)
   , is_primary_   (1)
   , is_pointer_   (0)
   , is_aggregate_ (0)
@@ -35,18 +33,19 @@ struct Type {
   bool is_mutable()   const { return is_what(is_mutable_);    }
   bool is_aggregate() const { return is_what(is_aggregate_);  }
   bool is_complete()  const { return is_what(is_complete_);  }
+  bool is_function()  const { return is_what(is_function_);  }
 
   void set_primary(bool b)    { if(b) is_primary_      = 0x1; else is_primary_      = 0x0;  }
   void set_pointer(bool b)    { if(b) is_pointer_      = 0x1; else is_pointer_      = 0x0;  }
   void set_mutable(bool b)    { if(b) is_mutable_      = 0x1; else is_mutable_      = 0x0;  }
   void set_aggregate(bool b)  { if(b) is_aggregate_    = 0x1; else is_aggregate_    = 0x0;  }
   void set_complete(bool b)   { if(b) is_complete_     = 0x1; else is_complete_     = 0x0;  }
+  void set_function(bool b)   { if(b) is_function_     = 0x1; else is_function_     = 0x0;  }
 
   template<class Str>
   void set_name(Str&& s) { name_ = s; }
   const std::string& name() const { return name_; }
 
-  Type*           deref   ;
   std::uint32_t   bits    ;
   // std::uint32_t   id      ;
 
@@ -59,9 +58,31 @@ private:
     is_pointer_     : 1,
     is_aggregate_   : 1,
     is_mutable_     : 1,
-    is_complete_    : 1
+    is_complete_    : 1,
+    is_function_    : 1
   ;
   std::string     name_    ;
+};
+
+struct PointerType : public Type {
+  PointerType(Type* _deref)
+  : Type()
+  , deref(_deref)
+  {
+    this->set_pointer(true);
+  }
+  Type*           deref   ;
+};
+struct FuncType : public Type {
+  FuncType(Type* _ret, std::vector<Type*> _params)
+  : Type()
+  , ret(_ret)
+  , params(std::move(_params))
+  {
+    this->set_function(true);
+  }
+  Type* ret;
+  std::vector<Type*> params;
 };
 
 
