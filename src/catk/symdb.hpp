@@ -2,6 +2,7 @@
 #include "symdb/forward_decl.hpp"
 #include "symdb/symbol.hpp"
 #include "symdb/type.hpp"
+#include "symdb/func.hpp"
 #include <deque>
 namespace catk {
 
@@ -24,7 +25,13 @@ struct SymDB : public std::deque<symdb::Symbol, Malloc>{
   }
 };
 
+template<class Malloc = std::allocator<symdb::Type>>
+struct FuncDB : public std::unordered_map<std::string, symdb::Func*, Malloc> {
+  using Base = std::unordered_map<std::string, symdb::Func*, Malloc>;
+};
+
 TypeDB<>& get_type_db();
 SymDB<>& get_sym_db();
+FuncDB<>& get_func_db();
 
 }

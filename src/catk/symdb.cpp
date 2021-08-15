@@ -28,4 +28,9 @@ TypeDB<>& get_type_db() {
   }();
   return typedb;
 }
+
+FuncDB<>& get_func_db() {
+  
+}
+
 }
