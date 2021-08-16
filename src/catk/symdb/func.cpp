@@ -12,26 +12,39 @@ static struct {
     const LRMOp& op, 
     const std::vector<Symbol*>& params
   ) const {
-    op.make_invoke(params);
+    op.emit_invoke(params);
   }
-} make_invoke;
+} emit_invoke;
 
 static struct {
   void operator()(const Symbol* sym) {
     // TODO: generate function definition from sym->ast and sym->type(should function type)
   }
   void operator()(const LRMOp& op) {
-    op.make_def();
+    op.emit_def();
   }
-} make_def;
+} emit_def;
 
+static struct {
+  Type* operator()(const Symbol* sym) {
+    assert(sym->type->is_function());
+    return ((FuncType*)sym->type)->ret;
+  }
+  Type* operator()(const LRMOp& op) {
+    return op.ret_type();
+  }
+} ret_type;
 
-void Func::make_invoke(const std::vector<Symbol*>& params) {
-  std::visit(catk::symdb::make_invoke, *this, params);
+void Func::emit_invoke(const std::vector<Symbol*>& params) const {
+  std::visit(catk::symdb::emit_invoke, *this, params);
 }
 
-void Func::make_def() {
-  std::visit(catk::symdb::make_def, *this);
+void Func::emit_def() const {
+  std::visit(catk::symdb::emit_def, *this);
+}
+
+Type* Func::ret_type() const {
+  std::visit(catk::symdb::ret_type, *this);
 }
   
 

@@ -9,14 +9,20 @@ namespace catk::symdb {
 
 struct LRMOp {
   FuncType* type;
-  void make_invoke(const std::vector<Symbol*>& params) const;
-  void make_def() const {}
+  virtual void emit_invoke(const std::vector<Symbol*>& params) const;
+  virtual void emit_def() const {}
+  Type* ret_type() const { return type->ret; }
 };
-// TODO: think about the different OP behavior
+
+struct LRMAdd : public LRMOp {
+
+
+};
 
 struct Func : public std::variant<Symbol*,LRMOp>{
-  void make_invoke(const std::vector<Symbol*>& params);
-  void make_def();
+  void emit_invoke(const std::vector<Symbol*>& params) const;
+  void emit_def() const;
+  Type* ret_type() const;
 };
 
 }

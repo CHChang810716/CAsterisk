@@ -29,8 +29,9 @@ TypeDB<>& get_type_db() {
   return typedb;
 }
 
-FuncDB<>& get_func_db() {
-  
+FuncDB& get_func_db() {
+  static FuncDB db;
+  return db; 
 }
 
 }
