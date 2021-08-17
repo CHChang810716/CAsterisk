@@ -39,7 +39,7 @@ struct FuncDBTrait {
       return true;
     }
   };
-  using Value = symdb::Func*;
+  using Value = symdb::Func;
   struct Hasher {
     using argument_type = Key;
     using result_type   = std::size_t;

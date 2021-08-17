@@ -6,7 +6,7 @@
 namespace catk::analysis::alloc_sym_dep {
 
 void context(
-  const syntax::AST& ast, 
+  syntax::AST& ast, 
   symdb::Symbol* parent, 
   const CapturedSymbols& capture_list
 ) {
@@ -16,13 +16,15 @@ void context(
   sym.ast = &ast; 
   sym.set_context(true);
   sym.parent = parent; 
+  for(auto&& [name, symbol] : capture_list) {
+    sym.accessable[name] = symbol;
+  }
   // loop over immutable function def
   for(auto&& ch_ast : ast.children) {
     auto& stmt_ast = *ch_ast;
     if(stmt_ast.is<syntax::AssignStmt>()) {
       assign_stmt(stmt_ast, &sym);
     }
-    
   }
 }
 

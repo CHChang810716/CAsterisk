@@ -4,7 +4,7 @@
 #include <fmt/format.h>
 namespace catk::analysis::alloc_sym_dep {
 
-void assign_stmt(const syntax::AST& ast, symdb::Symbol* parent) {
+void assign_stmt(syntax::AST& ast, symdb::Symbol* parent) {
   auto& left_vals = syntax::AssignStmt::left_values(ast);
   auto& expr = syntax::AssignStmt::right_expr(ast);
   if(left_vals.size() > 1) {
@@ -21,6 +21,7 @@ void assign_stmt(const syntax::AST& ast, symdb::Symbol* parent) {
     sym.set_solid(false);
     sym.name = id;
     parent->accessable[id] = &sym;
+    lv->set_symbol(sym);
     if(expr.is<syntax::LambdaLiteral>()) {
       CapturedSymbols captured_symbols;
       auto p_capture_list = syntax::LambdaLiteral::capture_list(expr);
@@ -35,7 +36,9 @@ void assign_stmt(const syntax::AST& ast, symdb::Symbol* parent) {
               fmt::format("capture item: '{}' not found", item_name)
             );
           };
-          captured_symbols[item_name] = captured_sym_iter->second;
+          auto& captured_sym = captured_sym_iter->second;
+          captured_symbols[item_name] = captured_sym;
+          item->set_symbol(*captured_sym);
         }
       }
       context(

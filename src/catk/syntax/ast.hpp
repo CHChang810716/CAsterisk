@@ -7,11 +7,15 @@ namespace catk::syntax {
 struct AST : public tao::pegtl::parse_tree::basic_node<AST> {
   using Base = tao::pegtl::parse_tree::basic_node<AST>;
   using Children = Base::children_t;
-  void set_symbol(const symdb::Symbol& sym) const {
+  void set_symbol(symdb::Symbol& sym) {
     sym_ = &sym;
   }
+  symdb::Symbol& symbol() const { 
+    assert(sym_);
+    return *sym_; 
+  }
 private:
-  mutable symdb::Symbol const* sym_ {nullptr};
+  symdb::Symbol* sym_ {nullptr};
 };
 
 }

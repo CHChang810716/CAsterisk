@@ -30,7 +30,11 @@ TypeDB<>& get_type_db() {
 }
 
 FuncDB& get_func_db() {
-  static FuncDB db;
+  static FuncDB db = [](){
+    FuncDB fdb;
+    // TODO: initial fdb
+    return fdb;
+  }();
   return db; 
 }
 
