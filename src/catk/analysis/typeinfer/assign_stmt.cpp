@@ -12,6 +12,7 @@ void assign_stmt(syntax::AST& ast) {
   }
   assert(left_vals.size() == 1);
   auto& lval = left_vals[0];
+  
 }
 
 }

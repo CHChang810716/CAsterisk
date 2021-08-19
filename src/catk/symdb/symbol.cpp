@@ -14,7 +14,8 @@ Symbol::Symbol()
 , is_expr_        (0)
 , db              (nullptr)
 , children        ()
-, related         ()
+, ref_by          ()
+, ref_to          ()
 , parent          (nullptr)
 , accessable      ()
 , type            (nullptr)
@@ -45,5 +46,18 @@ void Symbol::set_solid(bool b)       { if(b) is_solid_      = 0x1; else is_solid
 void Symbol::set_module(bool b)      { if(b) is_module_     = 0x1; else is_module_     = 0x0;  }
 void Symbol::set_expr(bool b)        { if(b) is_expr_       = 0x1; else is_expr_       = 0x0;  }
 
+void Symbol::add_parent(Symbol* p) {
+  this->parent_ = p;
+  if(p) {
+    p->children_.push_back(this);
+  } 
+}
+
+void Symbol::ref_to(Symbol* p) {
+  if(p) {
+    this->ref_to_.push_back(p);
+    p->ref_by_.push_back(this);
+  }
+}
 
 }

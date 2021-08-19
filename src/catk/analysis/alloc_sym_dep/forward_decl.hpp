@@ -12,5 +12,6 @@ void context(
     const CapturedSymbols& captured_symbol
 );
 void assign_stmt(syntax::AST& ast, symdb::Symbol* parent);
+symdb::Symbol* expr(syntax::AST& ast, symdb::Symbol* up_dep, symdb::Symbol* context_sym);
 
 }

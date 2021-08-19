@@ -15,7 +15,7 @@ void context(
   auto& sym = *sym_db.alloc();
   sym.ast = &ast; 
   sym.set_context(true);
-  sym.parent = parent; 
+  sym.add_parent(parent);
   for(auto&& [name, symbol] : capture_list) {
     sym.accessable[name] = symbol;
   }

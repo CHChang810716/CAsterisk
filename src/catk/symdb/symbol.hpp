@@ -31,6 +31,9 @@ struct Symbol {
   void set_module(bool b)     ; 
   void set_expr(bool b)       ; 
 
+  void add_parent(Symbol* sym);
+  void ref_to(Symbol* sym);
+
 private:
   std::uint64_t 
     is_locatable_   : 1,
@@ -49,9 +52,13 @@ private:
 
 public:
   SymDB<>*                    db                  ;
-  std::vector<Symbol*>        children            ;
-  std::vector<Symbol*>        related             ;
-  Symbol*                     parent              ;
+private:
+  // the children and parent is about the context relation ship
+  std::vector<Symbol*>        children_           ;
+  Symbol*                     parent_             ; 
+  std::vector<Symbol*>        ref_by_             ; 
+  std::vector<Symbol*>        ref_to_             ; 
+public:
   std::unordered_map<
     std::string,
     Symbol*

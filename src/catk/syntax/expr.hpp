@@ -4,6 +4,8 @@
 #include <tao/pegtl/contrib/parse_tree.hpp>
 #include "ast.hpp"
 #include <range/v3/view/drop_last.hpp>
+#include <boost/lexical_cast.hpp>
+#include <vector>
 
 namespace catk::syntax {
 
@@ -40,6 +42,31 @@ struct IntLiteral : tao::pegtl::sor<
     assert(ast.template is<IntLiteral>());
     return *ast.children.at(1);
   }
+  template<class T, class Store>
+  static void interpret(T& ast, Store& store) {
+    assert(ast.template is<IntLiteral>());
+    auto tag_ = tag(ast).content();
+    auto content = literal(ast).content();
+    if(tag_ == "u8") {
+      store = boost::lexical_cast<std::uint8_t>(content);
+    } else if(tag_ == "u16") {
+      store = boost::lexical_cast<std::uint16_t>(content);
+    } else if(tag_ == "u32") {
+      store = boost::lexical_cast<std::uint32_t>(content);
+    } else if(tag_ == "u64") {
+      store = boost::lexical_cast<std::uint64_t>(content);
+    } else if(tag_ == "i8") {
+      store = boost::lexical_cast<std::int8_t>(content);
+    } else if(tag_ == "i16") {
+      store = boost::lexical_cast<std::int16_t>(content);
+    } else if(tag_ == "i32") {
+      store = boost::lexical_cast<std::int32_t>(content);
+    } else if(tag_ == "i64") {
+      store = boost::lexical_cast<std::int64_t>(content);
+    } else {
+      assert(0);
+    }
+  }
 };
 
 
@@ -69,6 +96,16 @@ struct FPLiteral : tao::pegtl::sor<
     assert(ast.template is<FPLiteral>());
     return *ast.children.at(1);
   }
+  template<class T, class Store>
+  static void interpret(T& ast, Store& store) {
+    assert(ast.template is<FPLiteral>());
+    auto tag_ = tag(ast).content();
+    if(tag_ == "f32") {
+      store = std::stof(literal(ast).content());
+    } else if (tag_ == "f64") {
+      store = std::stod(literal(ast).content());
+    }
+  } 
 };
 
 struct EscapedChar : tao::pegtl::one< '"', '\\', '/', 'b', 'f', 'n', 'r', 't', '0' > {};
@@ -100,7 +137,12 @@ struct IfExpr : tao::pegtl::if_must<
   Expr,
   SpacePad<TAO_PEGTL_STRING("else")>,
   Expr
-> {};
+> {
+  template<class T>
+  static auto& function(T& ast) {
+    // TODO: use key word "if" as function ast
+  }
+};
 
 struct ArrayLiteral : tao::pegtl::seq<
   tao::pegtl::one<'['>, 
@@ -282,20 +324,48 @@ struct Term : tao::pegtl::sor<
   UnaryExpr,
   FCallExpr,
   Identifier
-> {};
+> {
+};
 
 struct BinOp : tao::pegtl::sor<
   tao::pegtl::one<'+', '-', '*', '/', '%', '&', '|', '^', '<', '>'>,
   TAO_PEGTL_STRING("=="), TAO_PEGTL_STRING("<="), TAO_PEGTL_STRING(">="), TAO_PEGTL_STRING("!=")
 > {};
 
-struct BinExpr : tao::pegtl::seq<Term, tao::pegtl::pad<BinOp, tao::pegtl::space>, Expr> {};
+struct BinExpr : tao::pegtl::seq<Term, tao::pegtl::pad<BinOp, tao::pegtl::space>, Expr> {
+  template<class T>
+  static auto& function(T& ast) {
+    assert(ast.template is<BinExpr>());
+    assert(ast.children.size() == 3);
+    return ast.children[1];
+  }
+  template<class T>
+  static auto opnds(T& ast) {
+    assert(ast.template is<BinExpr>());
+    assert(ast.children.size() == 3);
+    std::vector<T*> res({
+      ast.children[0].get(), 
+      ast.children[1].get()
+    });
+    return res;
+  }
+};
 
 struct Expr : tao::pegtl::sor<
   BinExpr,
   Term
 > {
+  template<class T>
+  static auto& function(T& ast) {
+    assert(ast.template is<Expr>());
+    
 
+  }
+  template<class T>
+  static auto opnds(T& ast) {
+    assert(ast.template is<Expr>());
+
+  }
 };
 
 struct File : tao::pegtl::until<
@@ -346,5 +416,7 @@ using ASTSelector = tao::pegtl::parse_tree::selector<
     IgnoredLval
   >
 >;
+
+// TODO: bop, if, uop must be a captureable ast
 
 }
