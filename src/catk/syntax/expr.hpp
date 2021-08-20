@@ -128,9 +128,9 @@ struct StringLiteral : tao::pegtl::seq<
 };
 
 struct Expr;
-
+struct IfOp : TAO_PEGTL_STRING("if") {};
 struct IfExpr : tao::pegtl::if_must<
-  TAO_PEGTL_STRING("if"), 
+  IfOp, 
   SpacePad<tao::pegtl::one<'('>>, 
   Expr,
   SpacePad<tao::pegtl::one<')'>>, 
@@ -140,7 +140,18 @@ struct IfExpr : tao::pegtl::if_must<
 > {
   template<class T>
   static auto& function(T& ast) {
-    // TODO: use key word "if" as function ast
+    assert(ast.template is<IfExpr>());
+    return *(ast.children.at(0));
+  }
+  template<class T>
+  static auto opnds(T& ast) {
+    assert(ast.template is<IfExpr>());
+    std::vector<T*> res({
+      ast.children.at(1).get(),
+      ast.children.at(2).get(),
+      ast.children.at(3).get()
+    });
+    return res
   }
 };
 
@@ -197,7 +208,18 @@ struct Literal : tao::pegtl::sor<
 
 struct FCallParamBind : tao::pegtl::seq<
   Identifier, SpacePad<tao::pegtl::one<'='>>, Expr
-> {};
+> {
+  template<class T>
+  static auto& param_name(T& ast) {
+    assert(ast.template is<FCallParamBind>());
+    return *(ast.children[0]);
+  }
+  template<class T>
+  static auto& param_expr(T& ast) {
+    assert(ast.template is<FCallParamBind>());
+    return *(ast.children[1]);
+  }
+};
 
 struct FCallParamBindList : tao::pegtl::list<FCallParamBind, tao::pegtl::one<','>, tao::pegtl::space> {};
 
@@ -206,13 +228,57 @@ struct FCallExpr : tao::pegtl::seq<
   SpacePad<tao::pegtl::one<'('>>, 
   tao::pegtl::opt<FCallParamBindList>,
   SpacePad<tao::pegtl::one<')'>>
-> {};
+> {
+  template<class T>
+  static auto& function(T& ast) {
+    assert(ast.template is<FCallExpr>());
+    return *(ast.children.at(0));
+  }
+  template<class T>
+  static auto opnds(T& ast) {
+    assert(ast.template is<FCallExpr>());
+    std::vector<T*> params_r;
+    for(std::size_t i = 1; i < ast.children.size(); i ++) {
+      auto& param_bind = *(ast.children[i]);
+      params_r.push_back(
+        &FCallParamBind::param_expr(param_bind)
+      );
+    }
+    return params_r;
+  }
+  template<class T>
+  static auto opnd_labels(T& ast) {
+    assert(ast.template is<FCallExpr>());
+    std::vector<T*> params_l;
+    for(std::size_t i = 1; i < ast.children.size(); i ++) {
+      auto& param_bind = *(ast.children[i]);
+      params_l.push_back(
+        &FCallParamBind::param_name(param_bind)
+      );
+    }
+    return params_l;
+  }
+};
 
 struct UnaryOp : tao::pegtl::one<
   '+', '-', '~', '*', '!', '&'
 > {};
 
-struct UnaryExpr : tao::pegtl::seq<UnaryOp, Expr> {};
+struct UnaryExpr : tao::pegtl::seq<UnaryOp, Expr> {
+  template<class T>
+  static auto& function(T& ast) {
+    assert(ast.template is<UnaryExpr>());
+    return *(ast.children.at(0));
+  }
+  template<class T>
+  static auto opnds(T& ast) {
+    assert(ast.template is<UnaryExpr>());
+    std::vector<T*> res({
+      ast.children.at(1).get()
+    });
+    return res;
+  }
+};
 
 struct AssignLeftHand : tao::pegtl::list<
   tao::pegtl::sor<
@@ -337,7 +403,7 @@ struct BinExpr : tao::pegtl::seq<Term, tao::pegtl::pad<BinOp, tao::pegtl::space>
   static auto& function(T& ast) {
     assert(ast.template is<BinExpr>());
     assert(ast.children.size() == 3);
-    return ast.children[1];
+    return *(ast.children.at(1));
   }
   template<class T>
   static auto opnds(T& ast) {
@@ -358,13 +424,46 @@ struct Expr : tao::pegtl::sor<
   template<class T>
   static auto& function(T& ast) {
     assert(ast.template is<Expr>());
-    
-
+    auto& next_lv = *(ast.children.at(0));
+    if(next_lv.template is<BinExpr>()) {
+      return BinExpr::function(next_lv);
+    }
+    if(next_lv.template is<IfExpr>()) {
+      return IfExpr::function(next_lv);
+    }
+    if(next_lv.template is<UnaryExpr>()) {
+      return UnaryExpr::function(next_lv);
+    }
+    if(next_lv.template is<FCallExpr>()) {
+      return FCallExpr::function(next_lv);
+    }
   }
   template<class T>
   static auto opnds(T& ast) {
     assert(ast.template is<Expr>());
-
+    auto& next_lv = *(ast.children.at(0));
+    if(next_lv.template is<BinExpr>()) {
+      return BinExpr::opnds(next_lv);
+    }
+    if(next_lv.template is<IfOp>()) {
+      return IfExpr::opnds(next_lv);
+    }
+    if(next_lv.template is<UnaryExpr>()) {
+      return UnaryExpr::opnds(next_lv);
+    }
+    if(next_lv.template is<FCallExpr>()) {
+      return FCallExpr::opnds(next_lv);
+    }
+    assert(0);
+  }
+  template<class T>
+  static auto opnd_labels(T& ast) {
+    assert(ast.template is<Expr>());
+    auto& next_lv = *(ast.children.at(0));
+    if(next_lv.template is<FCallExpr>()) {
+      return FCallExpr::opnd_labels(next_lv);
+    }
+    return std::vector<T*>();
   }
 };
 
@@ -381,6 +480,8 @@ using ASTSelector = tao::pegtl::parse_tree::selector<
   tao::pegtl::parse_tree::store_content::on<
     BinOp, 
     UnaryOp, 
+    IfOp,
+
     StringLiteral,
     LambdaLiteral,
     ArrayLiteral,

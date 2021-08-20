@@ -23,6 +23,7 @@ void assign_stmt(syntax::AST& ast, symdb::Symbol* parent) {
     parent->accessable[id] = &sym;
     lv->set_symbol(sym);
     auto* expr_sym = expr(right_expr, &sym, parent);
+    sym.ref_to(expr_sym);
   }
 }
 }

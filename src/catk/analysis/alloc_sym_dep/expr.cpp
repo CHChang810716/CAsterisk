@@ -63,19 +63,31 @@ symdb::Symbol* expr(syntax::AST& ast, symdb::Symbol* up_dep, symdb::Symbol* cont
     throw std::runtime_error("array literal, not yet supported");
   }
   if(ast.is<syntax::Expr>()) {
-    auto& func_ast = syntax::Expr::function(ast);
-    auto opnds_ast = syntax::Expr::opnds(ast);
-    res->ast = func_ast;
+    auto& func_ast      = syntax::Expr::function(ast);
+    auto opnds_ast      = syntax::Expr::opnds(ast);
+    auto opnds_labs_ast = syntax::Expr::opnd_labels(ast);
+    res->ast = &func_ast;
     func_ast.set_symbol(*res);
-    for(auto&& ch : opnds_ast) {
-      auto* ch_sym = expr(*ch, res, context_sym);
+    if(opnds_labs_ast.size() > 0) {
+      assert(opnds_labs_ast.size() == opnds_ast.size());
+      for(std::size_t i = 0; i < opnds_labs_ast.size(); i ++) {
+        auto& param_expr = *opnds_ast.at(i);
+        auto& param_name = *opnds_labs_ast.at(i);
+        auto* param_expr_sym = expr(param_expr, res, context_sym);
+        auto param_name_str = param_name.content();
+        res->labeled_ref_to(param_name_str, param_expr_sym);
+      }
+    } else {
+      for(auto&& ch : opnds_ast) {
+        auto* ch_sym = expr(*ch, res, context_sym);
+        res->ref_to(ch_sym);
+      }
     }
   } else {
     // expression is a term
     res->ast = &ast; 
     ast.set_symbol(*res);
   }
-  up_dep->ref_to(res);
   return res;
 }
 

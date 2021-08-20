@@ -33,6 +33,7 @@ struct Symbol {
 
   void add_parent(Symbol* sym);
   void ref_to(Symbol* sym);
+  void labeled_ref_to(const std::string& label, Symbol* sym);
 
 private:
   std::uint64_t 
@@ -58,6 +59,7 @@ private:
   Symbol*                     parent_             ; 
   std::vector<Symbol*>        ref_by_             ; 
   std::vector<Symbol*>        ref_to_             ; 
+  std::vector<std::string>    labeled_ref_to_     ;
 public:
   std::unordered_map<
     std::string,

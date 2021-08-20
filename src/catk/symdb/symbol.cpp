@@ -13,10 +13,11 @@ Symbol::Symbol()
 , is_module_      (0)
 , is_expr_        (0)
 , db              (nullptr)
-, children        ()
-, ref_by          ()
-, ref_to          ()
-, parent          (nullptr)
+, children_       ()
+, ref_by_         ()
+, ref_to_         ()
+, labeled_ref_to_ ()
+, parent_         (nullptr)
 , accessable      ()
 , type            (nullptr)
 , ast             (nullptr)
@@ -57,6 +58,15 @@ void Symbol::ref_to(Symbol* p) {
   if(p) {
     this->ref_to_.push_back(p);
     p->ref_by_.push_back(this);
+  }
+}
+void Symbol::labeled_ref_to(
+  const std::string& label, 
+  Symbol* p
+) {
+  ref_to(p);
+  if(p) {
+    this->labeled_ref_to_.push_back(label);
   }
 }
 
