@@ -20,6 +20,7 @@ struct Symbol {
   bool is_solid()       const; 
   bool is_module()      const; 
   bool is_expr()        const; 
+  bool is_param()       const;
 
   void set_locatable(bool b)  ; 
   void set_identifier(bool b) ; 
@@ -30,6 +31,7 @@ struct Symbol {
   void set_solid(bool b)      ; 
   void set_module(bool b)     ; 
   void set_expr(bool b)       ; 
+  void set_param(bool b)      ;
 
   void add_parent(Symbol* sym);
   void ref_to(Symbol* sym);
@@ -47,7 +49,8 @@ private:
     is_solid_       : 1, // executable
     is_module_      : 1,
 
-    is_expr_        : 1
+    is_expr_        : 1,
+    is_param_       : 1
   ;
 
 

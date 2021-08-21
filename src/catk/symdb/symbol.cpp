@@ -36,6 +36,7 @@ bool Symbol::is_string()      const { return is_what(is_string_);     }
 bool Symbol::is_solid()       const { return is_what(is_solid_);      }
 bool Symbol::is_module()      const { return is_what(is_module_);     }
 bool Symbol::is_expr()        const { return is_what(is_expr_);       }
+bool Symbol::is_param()       const { return is_what(is_param_);      }
 
 void Symbol::set_locatable(bool b)   { if(b) is_locatable_  = 0x1; else is_locatable_  = 0x0;  }
 void Symbol::set_identifier(bool b)  { if(b) is_identifier_ = 0x1; else is_identifier_ = 0x0;  }
@@ -46,6 +47,7 @@ void Symbol::set_string(bool b)      { if(b) is_string_     = 0x1; else is_strin
 void Symbol::set_solid(bool b)       { if(b) is_solid_      = 0x1; else is_solid_      = 0x0;  }
 void Symbol::set_module(bool b)      { if(b) is_module_     = 0x1; else is_module_     = 0x0;  }
 void Symbol::set_expr(bool b)        { if(b) is_expr_       = 0x1; else is_expr_       = 0x0;  }
+void Symbol::set_param(bool b)       { if(b) is_param_      = 0x1; else is_param_      = 0x0;  }
 
 void Symbol::add_parent(Symbol* p) {
   this->parent_ = p;

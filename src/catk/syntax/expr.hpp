@@ -151,7 +151,7 @@ struct IfExpr : tao::pegtl::if_must<
       ast.children.at(2).get(),
       ast.children.at(3).get()
     });
-    return res
+    return res;
   }
 };
 
@@ -318,10 +318,18 @@ struct StmtList : tao::pegtl::list<
   Statement, 
   tao::pegtl::star<tao::pegtl::space>
 > {};
+struct RetOp : TAO_PEGTL_STRING("ret") {};
 struct RetStmt : tao::pegtl::seq<
-  TAO_PEGTL_STRING("ret"), tao::pegtl::star<tao::pegtl::space>, 
+  RetOp, tao::pegtl::star<tao::pegtl::space>, 
   Expr, tao::pegtl::star<tao::pegtl::space>, tao::pegtl::one<';'>
-> {};
+> {
+  template<class T>
+  static auto& expr(T& ast) {
+    assert(ast.template is<RetStmt>());
+    assert(ast.children.size() == 2);
+    return *(ast.children.at(1));
+  }
+};
 struct ContextStmts : tao::pegtl::seq<
   tao::pegtl::star<tao::pegtl::space>,
   tao::pegtl::opt<StmtList>,
@@ -348,7 +356,15 @@ struct RetContext : tao::pegtl::seq<
   template<class T>
   static auto& stmts(T& ast) {
     assert(ast.template is<RetContext>());
-    return *ast.children.back();
+    return *(ast.children.back());
+  }
+  template<class T>
+  static auto& ret_stmt(T& ast) {
+    assert(ast.template is<RetContext>());
+    auto& stmt_list = stmts(ast);
+    auto& should_be_ret = *(stmt_list.children.back());
+    assert(should_be_ret.template is<ReStmt>());
+    return should_be_ret;
   }
 };
 struct LambdaLiteral : tao::pegtl::if_must<
@@ -363,7 +379,11 @@ struct LambdaLiteral : tao::pegtl::if_must<
   template<class T>
   static auto& params(T& ast) {
     assert(ast.template is<LambdaLiteral>());
-    return ast.children.at(0)->children; 
+    std::vector<T*> res;
+    for(auto&& up : ast.children.at(0)->children) {
+      res.push_back(up.get());
+    }
+    return res; 
   }
   template<class T>
   static auto& body(T& ast) {
@@ -437,6 +457,7 @@ struct Expr : tao::pegtl::sor<
     if(next_lv.template is<FCallExpr>()) {
       return FCallExpr::function(next_lv);
     }
+    assert(0);
   }
   template<class T>
   static auto opnds(T& ast) {
@@ -445,7 +466,7 @@ struct Expr : tao::pegtl::sor<
     if(next_lv.template is<BinExpr>()) {
       return BinExpr::opnds(next_lv);
     }
-    if(next_lv.template is<IfOp>()) {
+    if(next_lv.template is<IfExpr>()) {
       return IfExpr::opnds(next_lv);
     }
     if(next_lv.template is<UnaryExpr>()) {
@@ -481,6 +502,7 @@ using ASTSelector = tao::pegtl::parse_tree::selector<
     BinOp, 
     UnaryOp, 
     IfOp,
+    RetOp,
 
     StringLiteral,
     LambdaLiteral,
@@ -498,7 +520,7 @@ using ASTSelector = tao::pegtl::parse_tree::selector<
 
     Identifier,
 
-    Expr,
+    // Expr,
     UnaryExpr,
     BinExpr,
     IfExpr,

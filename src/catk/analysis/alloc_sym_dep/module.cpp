@@ -12,7 +12,7 @@ void module_(syntax::AST& ast, symdb::Symbol* parent) {
 
     ast.set_symbol(mod_sym);
     // resolve module as a context
-    context(ast, &mod_sym, {});
+    context(ast, &mod_sym, {}, {});
 }
 
 }

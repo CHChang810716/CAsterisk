@@ -5,8 +5,7 @@ namespace catk::analysis::typeinfer {
 
 void module_(const syntax::AST& ast, symdb::Symbol& sym) {
     assert(sym.is_module());
-    assert(sym.children.size() > 0);
-    context(ast, *sym.children[0]);
+    context(ast, ast.children.at(0)->symbol());
 }
 
 }

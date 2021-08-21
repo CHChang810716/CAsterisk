@@ -5,17 +5,10 @@
 
 namespace catk::analysis::typeinfer {
 
-void context(
-  syntax::AST& ast, 
-  symdb::Symbol& sym
+symdb::Type* context(
+  syntax::AST& ast, // the return statement
+  symdb::Symbol& sym 
 ) {
-  // loop over immutable function def
-  for(auto&& ch_ast : ast.children) {
-    auto& stmt_ast = *ch_ast;
-    if(stmt_ast.is<syntax::AssignStmt>()) {
-      assign_stmt(stmt_ast);
-    }
-  }
 }
 
 }
