@@ -33,6 +33,7 @@ symdb::Symbol* context(
     param_sym->set_identifier(true);
     param_sym->set_locatable(true);
     param_sym->set_param(true);
+    param_sym->name = name;
     sym.accessable[name] = param_sym;
   }
   for(auto&& ch_ast : ast.children) {
@@ -41,7 +42,7 @@ symdb::Symbol* context(
       assign_stmt(stmt_ast, &sym);
     }
   }
-  auto& ret_stmt = syntax::RetContext::ret_stmt(ast);
+  auto& ret_stmt = syntax::ContextStmts::ret_stmt(ast);
   auto& ret_expr = syntax::RetStmt::expr(ret_stmt);
   sym.ast = &ret_stmt;
   ret_stmt.set_symbol(sym);

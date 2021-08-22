@@ -3,6 +3,7 @@
 #include "symdb/symbol.hpp"
 #include "symdb/type.hpp"
 #include "symdb/func.hpp"
+#include "symdb/rel_dbg.h"
 #include <deque>
 namespace catk {
 

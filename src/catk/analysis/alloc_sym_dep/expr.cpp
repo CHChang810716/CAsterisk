@@ -9,9 +9,7 @@ static symdb::Symbol* identifier(syntax::AST& ast, symdb::Symbol* up_dep, symdb:
   auto name = ast.content();
   try {
     auto res = context_sym->accessable.at(name);
-    res->ast = &ast; 
     ast.set_symbol(*res);
-    res->set_expr(true);
     return res;
   } catch(const std::out_of_range& e) {
     throw std::runtime_error(fmt::format("unknown identifier: {}", name));
@@ -41,9 +39,7 @@ static symdb::Symbol* fp_literal(syntax::AST& ast, symdb::Symbol* up_dep, symdb:
 }
 static symdb::Symbol* lambda_literal(syntax::AST& ast, symdb::Symbol* up_dep, symdb::Symbol* context_sym) {
   auto& sym_db = catk::get_sym_db();
-  auto res = sym_db.alloc();
-  res->add_parent(context_sym);
-  res->set_literal(true);
+  // auto res = sym_db.alloc();
   CapturedSymbols captured_symbols;
   ParamSymbols param_symbols;
   auto p_capture_list = syntax::LambdaLiteral::capture_list(ast);
@@ -59,15 +55,18 @@ static symdb::Symbol* lambda_literal(syntax::AST& ast, symdb::Symbol* up_dep, sy
   for(auto&& p : param_asts) {
     param_symbols.push_back(p->content());
   }
-  context(
+  auto res = context(
     syntax::LambdaLiteral::stmts(ast), 
     context_sym, 
     captured_symbols,
     param_symbols
   );
-  res->ast = &ast; 
-  ast.set_symbol(*res);
+  res->add_parent(context_sym);
+  res->set_literal(true);
+  // res->ast = &ast; 
+  // ast.set_symbol(*res);
   res->set_expr(true);
+  res->set_function(true);
   return res;
 }
 template<class ExprType>
@@ -145,6 +144,8 @@ symdb::Symbol* expr(syntax::AST& ast, symdb::Symbol* up_dep, symdb::Symbol* cont
   if(ast.is<syntax::FCallExpr>()) {
     return fcall_expr(ast, up_dep, context_sym);
   }
+  throw std::runtime_error(fmt::format("ast type: {}, unable to process.\n{}", ast.name(), ast.content()));
+  assert(0);
 }
 
 }

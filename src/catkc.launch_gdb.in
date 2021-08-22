@@ -1,0 +1,25 @@
+        {
+            "name": "@AKT_TARGET@",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "@CMAKE_CURRENT_BINARY_DIR@/@AKT_TARGET@",
+            "args": ["@CMAKE_SOURCE_DIR@/src/test/data/fib.car"],
+            "stopAtEntry": false,
+            "cwd": "@AKT_WORKDIR@",
+            "environment": [],
+            "console": "externalTerminal",
+            "MIMode": "gdb",
+            "miDebuggerPath": "@AKT_DEBUGGER@",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Enable break on all exceptions",
+                    "text": "catch throw",
+                    "ignoreFailures": true
+                }
+            ]
+        }

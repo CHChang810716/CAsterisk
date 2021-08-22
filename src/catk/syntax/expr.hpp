@@ -146,10 +146,11 @@ struct IfExpr : tao::pegtl::if_must<
   template<class T>
   static auto opnds(T& ast) {
     assert(ast.template is<IfExpr>());
+    assert(ast.children.size() == 4);
     std::vector<T*> res({
-      ast.children.at(1).get(),
-      ast.children.at(2).get(),
-      ast.children.at(3).get()
+      ast.children[1].get(),
+      ast.children[2].get(),
+      ast.children[3].get()
     });
     return res;
   }
@@ -268,13 +269,15 @@ struct UnaryExpr : tao::pegtl::seq<UnaryOp, Expr> {
   template<class T>
   static auto& function(T& ast) {
     assert(ast.template is<UnaryExpr>());
-    return *(ast.children.at(0));
+    assert(ast.children.size() == 2);
+    return *(ast.children[0]);
   }
   template<class T>
   static auto opnds(T& ast) {
     assert(ast.template is<UnaryExpr>());
+    assert(ast.children.size() == 2);
     std::vector<T*> res({
-      ast.children.at(1).get()
+      ast.children[1].get()
     });
     return res;
   }
@@ -336,7 +339,16 @@ struct ContextStmts : tao::pegtl::seq<
   tao::pegtl::star<tao::pegtl::space>,
   RetStmt,
   tao::pegtl::star<tao::pegtl::space>
-> {};
+> {
+  template<class T>
+  static auto& ret_stmt(T& ast) {
+    assert(ast.template is<ContextStmts>());
+    auto& should_be_ret = *(ast.children.back());
+    assert(should_be_ret.template is<RetStmt>());
+    return should_be_ret;
+  }
+
+};
 struct RetContext : tao::pegtl::seq<
   tao::pegtl::opt<CaptureList>,
   tao::pegtl::star<tao::pegtl::space>,
@@ -362,9 +374,7 @@ struct RetContext : tao::pegtl::seq<
   static auto& ret_stmt(T& ast) {
     assert(ast.template is<RetContext>());
     auto& stmt_list = stmts(ast);
-    auto& should_be_ret = *(stmt_list.children.back());
-    assert(should_be_ret.template is<RetStmt>());
-    return should_be_ret;
+    return ContextStmts::ret_stmt(stmt_list);
   }
 };
 struct LambdaLiteral : tao::pegtl::if_must<
@@ -418,7 +428,7 @@ struct BinOp : tao::pegtl::sor<
   TAO_PEGTL_STRING("=="), TAO_PEGTL_STRING("<="), TAO_PEGTL_STRING(">="), TAO_PEGTL_STRING("!=")
 > {};
 
-struct BinExpr : tao::pegtl::seq<Term, tao::pegtl::pad<BinOp, tao::pegtl::space>, Expr> {
+struct BinExpr : tao::pegtl::seq<Term, SpacePad<BinOp>, Expr> {
   template<class T>
   static auto& function(T& ast) {
     assert(ast.template is<BinExpr>());
@@ -431,7 +441,7 @@ struct BinExpr : tao::pegtl::seq<Term, tao::pegtl::pad<BinOp, tao::pegtl::space>
     assert(ast.children.size() == 3);
     std::vector<T*> res({
       ast.children[0].get(), 
-      ast.children[1].get()
+      ast.children[2].get()
     });
     return res;
   }
@@ -497,6 +507,12 @@ struct File : tao::pegtl::seq<
   ContextStmts,
   tao::pegtl::eof
 > {
+  template<class T>
+  static auto& stmts(T& ast) {
+    assert(ast.template is<File>());
+    return *(ast.children.back());
+  }
+
 };
 
 

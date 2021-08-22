@@ -1,0 +1,10 @@
+fib = fn(i) {
+  ret if(i < 2i32) 
+      i 
+    else 
+      fib(i = i - 1i32) + fib(i = i - 2i32);
+};
+
+x = 10i64;
+y = fib(i = x);
+ret fib;

@@ -2,7 +2,7 @@ target_include_directories(${AKT_TARGET} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include>
 )
-akt_show_var(AKT_IMPORTED_TARGETS)
+# akt_show_var(AKT_IMPORTED_TARGETS)
 list(REMOVE_ITEM AKT_IMPORTED_TARGETS "LTO")
 target_link_libraries(${AKT_TARGET} PRIVATE ${AKT_IMPORTED_TARGETS} ${AKT_IMPORTED_TARGETS})
 if(GCC)

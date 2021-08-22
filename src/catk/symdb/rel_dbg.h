@@ -4,15 +4,15 @@
 #include <fmt/format.h>
 namespace catk::symdb{
 
-std::string graph_id(Symbol& sym);
+std::string graph_id(const Symbol& sym);
+void accessible(const Symbol& sym, std::ostream& out);
+void assign_to(const Symbol& sym, std::ostream& out);
+void expr_tree(const Symbol& sym, std::ostream& out);
 
-void accessible(Symbol& sym, std::ostream& out);
 
-void assign_to(Symbol& sym, std::ofstream& out);
-
-template<class Malloc>
+template<class DB>
 void sym_graph(
-  const SymDB<Malloc>& symdb, 
+  const DB& symdb, 
   std::ostream& out
 ) {
   out << "digraph sym_graph {" << std::endl;
@@ -25,29 +25,43 @@ void sym_graph(
     if(sym.is_expr()) {
       label << fmt::format(label_item, "<expr>");
     }
-    if(sym.is_function()) {
-      label << fmt::format(label_item, "<function>");
-    }
+    // if(sym.is_function()) {
+    //   label << fmt::format(label_item, "<function>");
+    // }
     if(sym.is_param()) {
       label << fmt::format(label_item, "<param>");
     }
     if(sym.is_identifier()) {
       label << fmt::format(label_item, 
-        fmt::format("{}", sym.name())
+        fmt::format("{}", sym.name)
       );
     }
-    if(sym.is_literal()) {
-      std::visit([&](auto&& v){
-        label << fmt::format(label_item, "={}", v);
-      }, sym.content);
+    // if(sym.is_literal()) {
+    //   if(sym.is_function()) {
+    //     label << fmt::format(label_item, "={}", "<lambda>");
+    //   } else {
+    //     std::visit([&](auto&& v){
+    //       label << fmt::format(label_item, "={}", v);
+    //     }, sym.content);
+    //   }
+    // }
+    if(sym.is_expr()) {
+      if(sym.is_function()) {
+        label << fmt::format(label_item, "<lambda>");
+      } else {
+        label << fmt::format(label_item, sym.ast->content());
+      }
+      // label << fmt::format(label_item, sym.ast->content());
     }
     auto node = fmt::format("{} [label=\"<{}>{}\"]", 
       graph_id(sym), 
-      label.str(),
-      sym.debug_id()
+      sym.debug_id(),
+      label.str()
     );
     out << node << std::endl;
     accessible(sym, out);
+    assign_to(sym, out);
+    expr_tree(sym, out);
   }
   out << "}" << std::endl;
 }
