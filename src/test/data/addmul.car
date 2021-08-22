@@ -13,3 +13,5 @@ x = addmul(
   a = c, 
   b = 0i64
 );
+
+ret addmul;

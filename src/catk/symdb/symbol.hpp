@@ -6,10 +6,11 @@
 #include "type.hpp"
 #include <catk/syntax/ast.hpp>
 #include "forward_decl.hpp"
+#include <avalon/debug_id.hpp>
 
 namespace catk::symdb {
 
-struct Symbol {
+struct Symbol : public avalon::DebugID<Symbol> {
   Symbol();
   bool is_locatable()   const; 
   bool is_identifier()  const; 
@@ -36,6 +37,12 @@ struct Symbol {
   void add_parent(Symbol* sym);
   void ref_to(Symbol* sym);
   void labeled_ref_to(const std::string& label, Symbol* sym);
+  const auto& get_ref_to()        const { return ref_to_; }
+  const auto& get_labed_ref_to()  const { return labeled_ref_to_; }
+  const auto& get_ref_by()        const { return labeled_ref_to_; }
+
+  const auto& get_parent()        const { return parent_; }
+  const auto& get_children()      const { return children_; }
 
 private:
   std::uint64_t 
@@ -52,8 +59,6 @@ private:
     is_expr_        : 1,
     is_param_       : 1
   ;
-
-
 public:
   SymDB<>*                    db                  ;
 private:

@@ -1,265 +1,219 @@
 digraph parse_tree
 {
-  x0x7d2830 [ label="ROOT" ]
-  x0x7d2830 -> { x0x7d6f30, x0x683020, x0x683260, x0x682cc0, x0x7d89f0, x0x7d8060, x0x7dbb40 }
-  x0x7d6f30 [ label="catk::syntax::AssignStmt\na = 0i32;" ]
-  x0x7d6f30 -> { x0x7d6fc0, x0x7d7080 }
-  x0x7d6fc0 [ label="catk::syntax::AssignLeftHand\na" ]
-  x0x7d6fc0 -> { x0x7d71a0 }
-  x0x7d71a0 [ label="tao::pegtl::ascii::identifier\na" ]
-  x0x7d7080 [ label="catk::syntax::Expr\n0i32" ]
-  x0x7d7080 -> { x0x6824e0 }
-  x0x6824e0 [ label="catk::syntax::IntLiteral\n0i32" ]
-  x0x6824e0 -> { x0x6829f0, x0x682f90 }
-  x0x6829f0 [ label="catk::syntax::DecIntLiteral\n0" ]
-  x0x682f90 [ label="catk::syntax::IntTag\ni32" ]
-  x0x683020 [ label="catk::syntax::AssignStmt\nb = 1i32;" ]
-  x0x683020 -> { x0x682a80, x0x682b10 }
-  x0x682a80 [ label="catk::syntax::AssignLeftHand\nb" ]
-  x0x682a80 -> { x0x6830b0 }
-  x0x6830b0 [ label="tao::pegtl::ascii::identifier\nb" ]
-  x0x682b10 [ label="catk::syntax::Expr\n1i32" ]
-  x0x682b10 -> { x0x6831d0 }
-  x0x6831d0 [ label="catk::syntax::IntLiteral\n1i32" ]
-  x0x6831d0 -> { x0x683140, x0x682f00 }
-  x0x683140 [ label="catk::syntax::DecIntLiteral\n1" ]
-  x0x682f00 [ label="catk::syntax::IntTag\ni32" ]
-  x0x683260 [ label="catk::syntax::AssignStmt\nc = 2i32;" ]
-  x0x683260 -> { x0x682720, x0x682ba0 }
-  x0x682720 [ label="catk::syntax::AssignLeftHand\nc" ]
-  x0x682720 -> { x0x682690 }
-  x0x682690 [ label="tao::pegtl::ascii::identifier\nc" ]
-  x0x682ba0 [ label="catk::syntax::Expr\n2i32" ]
-  x0x682ba0 -> { x0x6827b0 }
-  x0x6827b0 [ label="catk::syntax::IntLiteral\n2i32" ]
-  x0x6827b0 -> { x0x682840, x0x6828d0 }
-  x0x682840 [ label="catk::syntax::DecIntLiteral\n2" ]
-  x0x6828d0 [ label="catk::syntax::IntTag\ni32" ]
-  x0x682cc0 [ label="catk::syntax::AssignStmt\nr0 = [a,b,c] {\r\n  x = a + b;\r\n  ret x * c;\r\n};" ]
-  x0x682cc0 -> { x0x683380, x0x682960 }
-  x0x683380 [ label="catk::syntax::AssignLeftHand\nr0" ]
-  x0x683380 -> { x0x682600 }
-  x0x682600 [ label="tao::pegtl::ascii::identifier\nr0" ]
-  x0x682960 [ label="catk::syntax::Expr\n[a,b,c] {\r\n  x = a + b;\r\n  ret x * c;\r\n}" ]
-  x0x682960 -> { x0x682de0 }
-  x0x682de0 [ label="catk::syntax::RetContext\n[a,b,c] {\r\n  x = a + b;\r\n  ret x * c;\r\n}" ]
-  x0x682de0 -> { x0x7d8e70, x0x7d83c0, x0x7d8cc0 }
-  x0x7d8e70 [ label="catk::syntax::CaptureList\n[a,b,c]" ]
-  x0x7d8e70 -> { x0x7d9bf0, x0x7d9800, x0x7d9140 }
-  x0x7d9bf0 [ label="catk::syntax::CaptureItem\na" ]
-  x0x7d9800 [ label="catk::syntax::CaptureItem\nb" ]
-  x0x7d9140 [ label="catk::syntax::CaptureItem\nc" ]
-  x0x7d83c0 [ label="catk::syntax::AssignStmt\nx = a + b;" ]
-  x0x7d83c0 -> { x0x7d9530, x0x7d9770 }
-  x0x7d9530 [ label="catk::syntax::AssignLeftHand\nx" ]
-  x0x7d9530 -> { x0x7d8180 }
-  x0x7d8180 [ label="tao::pegtl::ascii::identifier\nx" ]
-  x0x7d9770 [ label="catk::syntax::Expr\na + b" ]
-  x0x7d9770 -> { x0x7d8c30 }
-  x0x7d8c30 [ label="catk::syntax::BinExpr\na + b" ]
-  x0x7d8c30 -> { x0x7d8450, x0x7d9890, x0x7d9380 }
-  x0x7d8450 [ label="tao::pegtl::ascii::identifier\na" ]
-  x0x7d9890 [ label="catk::syntax::BinOp\n+" ]
-  x0x7d9380 [ label="catk::syntax::Expr\nb" ]
-  x0x7d9380 -> { x0x7d9a40 }
-  x0x7d9a40 [ label="tao::pegtl::ascii::identifier\nb" ]
-  x0x7d8cc0 [ label="catk::syntax::RetStmt\nret x * c;" ]
-  x0x7d8cc0 -> { x0x7d92f0 }
-  x0x7d92f0 [ label="catk::syntax::Expr\nx * c" ]
-  x0x7d92f0 -> { x0x7d9920 }
-  x0x7d9920 [ label="catk::syntax::BinExpr\nx * c" ]
-  x0x7d9920 -> { x0x7d91d0, x0x7d9260, x0x7d8f00 }
-  x0x7d91d0 [ label="tao::pegtl::ascii::identifier\nx" ]
-  x0x7d9260 [ label="catk::syntax::BinOp\n*" ]
-  x0x7d8f00 [ label="catk::syntax::Expr\nc" ]
-  x0x7d8f00 -> { x0x7d9ad0 }
-  x0x7d9ad0 [ label="tao::pegtl::ascii::identifier\nc" ]
-  x0x7d89f0 [ label="catk::syntax::AssignStmt\nr1 = if(a) {\r\n  ret b;\r\n} else [c] {\r\n  ret c;\r\n};" ]
-  x0x7d89f0 -> { x0x7d96e0, x0x7d9da0 }
-  x0x7d96e0 [ label="catk::syntax::AssignLeftHand\nr1" ]
-  x0x7d96e0 -> { x0x7d9c80 }
-  x0x7d9c80 [ label="tao::pegtl::ascii::identifier\nr1" ]
-  x0x7d9da0 [ label="catk::syntax::Expr\nif(a) {\r\n  ret b;\r\n} else [c] {\r\n  ret c;\r\n}" ]
-  x0x7d9da0 -> { x0x7d7eb0 }
-  x0x7d7eb0 [ label="catk::syntax::IfExpr\nif(a) {\r\n  ret b;\r\n} else [c] {\r\n  ret c;\r\n}" ]
-  x0x7d7eb0 -> { x0x7d9b60, x0x7d9410, x0x7d8720 }
-  x0x7d9b60 [ label="catk::syntax::Expr\na" ]
-  x0x7d9b60 -> { x0x7d84e0 }
-  x0x7d84e0 [ label="tao::pegtl::ascii::identifier\na" ]
-  x0x7d9410 [ label="catk::syntax::Expr\n{\r\n  ret b;\r\n}" ]
-  x0x7d9410 -> { x0x7d9d10 }
-  x0x7d9d10 [ label="catk::syntax::RetContext\n{\r\n  ret b;\r\n}" ]
-  x0x7d9d10 -> { x0x7d80f0 }
-  x0x7d80f0 [ label="catk::syntax::RetStmt\nret b;" ]
-  x0x7d80f0 -> { x0x7d7f40 }
-  x0x7d7f40 [ label="catk::syntax::Expr\nb" ]
-  x0x7d7f40 -> { x0x7d8570 }
-  x0x7d8570 [ label="tao::pegtl::ascii::identifier\nb" ]
-  x0x7d8720 [ label="catk::syntax::Expr\n[c] {\r\n  ret c;\r\n}" ]
-  x0x7d8720 -> { x0x7d94a0 }
-  x0x7d94a0 [ label="catk::syntax::RetContext\n[c] {\r\n  ret c;\r\n}" ]
-  x0x7d94a0 -> { x0x7d9650, x0x7d88d0 }
-  x0x7d9650 [ label="catk::syntax::CaptureList\n[c]" ]
-  x0x7d9650 -> { x0x7d8de0 }
-  x0x7d8de0 [ label="catk::syntax::CaptureItem\nc" ]
-  x0x7d88d0 [ label="catk::syntax::RetStmt\nret c;" ]
-  x0x7d88d0 -> { x0x7d7fd0 }
-  x0x7d7fd0 [ label="catk::syntax::Expr\nc" ]
-  x0x7d7fd0 -> { x0x7d8210 }
-  x0x7d8210 [ label="tao::pegtl::ascii::identifier\nc" ]
-  x0x7d8060 [ label="catk::syntax::AssignStmt\naddmul = fn (a, b) [c] {\r\n  ret if(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }\r\n  ;\r\n};" ]
-  x0x7d8060 -> { x0x7d82a0, x0x7d8600 }
-  x0x7d82a0 [ label="catk::syntax::AssignLeftHand\naddmul" ]
-  x0x7d82a0 -> { x0x7d8330 }
-  x0x7d8330 [ label="tao::pegtl::ascii::identifier\naddmul" ]
-  x0x7d8600 [ label="catk::syntax::Expr\nfn (a, b) [c] {\r\n  ret if(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }\r\n  ;\r\n}" ]
-  x0x7d8600 -> { x0x7d8840 }
-  x0x7d8840 [ label="catk::syntax::LambdaLiteral\nfn (a, b) [c] {\r\n  ret if(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }\r\n  ;\r\n}" ]
-  x0x7d8840 -> { x0x7d99b0, x0x6832f0 }
-  x0x7d99b0 [ label="catk::syntax::ParamList\na, b" ]
-  x0x7d99b0 -> { x0x7d8a80, x0x7d8ba0 }
-  x0x7d8a80 [ label="catk::syntax::Param\na" ]
-  x0x7d8a80 -> { x0x7d8b10 }
-  x0x7d8b10 [ label="tao::pegtl::ascii::identifier\na" ]
-  x0x7d8ba0 [ label="catk::syntax::Param\nb" ]
-  x0x7d8ba0 -> { x0x7d9020 }
-  x0x7d9020 [ label="tao::pegtl::ascii::identifier\nb" ]
-  x0x6832f0 [ label="catk::syntax::RetContext\n[c] {\r\n  ret if(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }\r\n  ;\r\n}" ]
-  x0x6832f0 -> { x0x682d50, x0x682c30 }
-  x0x682d50 [ label="catk::syntax::CaptureList\n[c]" ]
-  x0x682d50 -> { x0x7d90b0 }
-  x0x7d90b0 [ label="catk::syntax::CaptureItem\nc" ]
-  x0x682c30 [ label="catk::syntax::RetStmt\nret if(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }\r\n  ;" ]
-  x0x682c30 -> { x0x682570 }
-  x0x682570 [ label="catk::syntax::Expr\nif(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }" ]
-  x0x682570 -> { x0x682e70 }
-  x0x682e70 [ label="catk::syntax::IfExpr\nif(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }" ]
-  x0x682e70 -> { x0x7db2d0, x0x7dc200, x0x7dc710 }
-  x0x7db2d0 [ label="catk::syntax::Expr\na" ]
-  x0x7db2d0 -> { x0x7dc680 }
-  x0x7dc680 [ label="tao::pegtl::ascii::identifier\na" ]
-  x0x7dc200 [ label="catk::syntax::Expr\n(a + b) * c" ]
-  x0x7dc200 -> { x0x7dbf30 }
-  x0x7dbf30 [ label="catk::syntax::BinExpr\n(a + b) * c" ]
-  x0x7dbf30 -> { x0x7db090, x0x7db120, x0x7db360 }
-  x0x7db090 [ label="catk::syntax::Expr\na + b" ]
-  x0x7db090 -> { x0x7dcc20 }
-  x0x7dcc20 [ label="catk::syntax::BinExpr\na + b" ]
-  x0x7dcc20 -> { x0x7db7e0, x0x7dbcf0, x0x7dc5f0 }
-  x0x7db7e0 [ label="tao::pegtl::ascii::identifier\na" ]
-  x0x7dbcf0 [ label="catk::syntax::BinOp\n+" ]
-  x0x7dc5f0 [ label="catk::syntax::Expr\nb" ]
-  x0x7dc5f0 -> { x0x7dbfc0 }
-  x0x7dbfc0 [ label="tao::pegtl::ascii::identifier\nb" ]
-  x0x7db120 [ label="catk::syntax::BinOp\n*" ]
-  x0x7db360 [ label="catk::syntax::Expr\nc" ]
-  x0x7db360 -> { x0x7dbe10 }
-  x0x7dbe10 [ label="tao::pegtl::ascii::identifier\nc" ]
-  x0x7dc710 [ label="catk::syntax::Expr\nif(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }" ]
-  x0x7dc710 -> { x0x7dc170 }
-  x0x7dc170 [ label="catk::syntax::IfExpr\nif(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }" ]
-  x0x7dc170 -> { x0x7dc9e0, x0x7dc290, x0x7dba20 }
-  x0x7dc9e0 [ label="catk::syntax::Expr\nb" ]
-  x0x7dc9e0 -> { x0x7dbea0 }
-  x0x7dbea0 [ label="tao::pegtl::ascii::identifier\nb" ]
-  x0x7dc290 [ label="catk::syntax::Expr\n{\r\n    ret c + b;\r\n  }" ]
-  x0x7dc290 -> { x0x7db6c0 }
-  x0x7db6c0 [ label="catk::syntax::RetContext\n{\r\n    ret c + b;\r\n  }" ]
-  x0x7db6c0 -> { x0x7dca70 }
-  x0x7dca70 [ label="catk::syntax::RetStmt\nret c + b;" ]
-  x0x7dca70 -> { x0x7dc050 }
-  x0x7dc050 [ label="catk::syntax::Expr\nc + b" ]
-  x0x7dc050 -> { x0x7db990 }
-  x0x7db990 [ label="catk::syntax::BinExpr\nc + b" ]
-  x0x7db990 -> { x0x7dcb00, x0x7db3f0, x0x7dc560 }
-  x0x7dcb00 [ label="tao::pegtl::ascii::identifier\nc" ]
-  x0x7db3f0 [ label="catk::syntax::BinOp\n+" ]
-  x0x7dc560 [ label="catk::syntax::Expr\nb" ]
-  x0x7dc560 -> { x0x7dc3b0 }
-  x0x7dc3b0 [ label="tao::pegtl::ascii::identifier\nb" ]
-  x0x7dba20 [ label="catk::syntax::Expr\n{\r\n    ret b;\r\n  }" ]
-  x0x7dba20 -> { x0x7dcb90 }
-  x0x7dcb90 [ label="catk::syntax::RetContext\n{\r\n    ret b;\r\n  }" ]
-  x0x7dcb90 -> { x0x7db750 }
-  x0x7db750 [ label="catk::syntax::RetStmt\nret b;" ]
-  x0x7db750 -> { x0x7db480 }
-  x0x7db480 [ label="catk::syntax::Expr\nb" ]
-  x0x7db480 -> { x0x7dc8c0 }
-  x0x7dc8c0 [ label="tao::pegtl::ascii::identifier\nb" ]
-  x0x7dbb40 [ label="catk::syntax::AssignStmt\naddmul2 = fn (a, b) {\r\n  ret if(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }\r\n  ;\r\n};" ]
-  x0x7dbb40 -> { x0x7db510, x0x7dbc60 }
-  x0x7db510 [ label="catk::syntax::AssignLeftHand\naddmul2" ]
-  x0x7db510 -> { x0x7dbbd0 }
-  x0x7dbbd0 [ label="tao::pegtl::ascii::identifier\naddmul2" ]
-  x0x7dbc60 [ label="catk::syntax::Expr\nfn (a, b) {\r\n  ret if(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }\r\n  ;\r\n}" ]
-  x0x7dbc60 -> { x0x7dccb0 }
-  x0x7dccb0 [ label="catk::syntax::LambdaLiteral\nfn (a, b) {\r\n  ret if(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }\r\n  ;\r\n}" ]
-  x0x7dccb0 -> { x0x7dc830, x0x7dcd40 }
-  x0x7dc830 [ label="catk::syntax::ParamList\na, b" ]
-  x0x7dc830 -> { x0x7dc950, x0x7db630 }
-  x0x7dc950 [ label="catk::syntax::Param\na" ]
-  x0x7dc950 -> { x0x7db870 }
-  x0x7db870 [ label="tao::pegtl::ascii::identifier\na" ]
-  x0x7db630 [ label="catk::syntax::Param\nb" ]
-  x0x7db630 -> { x0x7dc440 }
-  x0x7dc440 [ label="tao::pegtl::ascii::identifier\nb" ]
-  x0x7dcd40 [ label="catk::syntax::RetContext\n{\r\n  ret if(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }\r\n  ;\r\n}" ]
-  x0x7dcd40 -> { x0x7daf70 }
-  x0x7daf70 [ label="catk::syntax::RetStmt\nret if(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }\r\n  ;" ]
-  x0x7daf70 -> { x0x7dc320 }
-  x0x7dc320 [ label="catk::syntax::Expr\nif(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }" ]
-  x0x7dc320 -> { x0x7daee0 }
-  x0x7daee0 [ label="catk::syntax::IfExpr\nif(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }" ]
-  x0x7daee0 -> { x0x7db1b0, x0x7d95c0, x0x684b80 }
-  x0x7db1b0 [ label="catk::syntax::Expr\na" ]
-  x0x7db1b0 -> { x0x7d8f90 }
-  x0x7d8f90 [ label="tao::pegtl::ascii::identifier\na" ]
-  x0x7d95c0 [ label="catk::syntax::Expr\n(a + b) * c" ]
-  x0x7d95c0 -> { x0x7d8690 }
-  x0x7d8690 [ label="catk::syntax::BinExpr\n(a + b) * c" ]
-  x0x7d8690 -> { x0x7dbd80, x0x684ca0, x0x685090 }
-  x0x7dbd80 [ label="catk::syntax::Expr\na + b" ]
-  x0x7dbd80 -> { x0x7db5a0 }
-  x0x7db5a0 [ label="catk::syntax::BinExpr\na + b" ]
-  x0x7db5a0 -> { x0x7db240, x0x6852d0, x0x684550 }
-  x0x7db240 [ label="tao::pegtl::ascii::identifier\na" ]
-  x0x6852d0 [ label="catk::syntax::BinOp\n+" ]
-  x0x684550 [ label="catk::syntax::Expr\nb" ]
-  x0x684550 -> { x0x6840d0 }
-  x0x6840d0 [ label="tao::pegtl::ascii::identifier\nb" ]
-  x0x684ca0 [ label="catk::syntax::BinOp\n*" ]
-  x0x685090 [ label="catk::syntax::Expr\nc" ]
-  x0x685090 -> { x0x685ab0 }
-  x0x685ab0 [ label="tao::pegtl::ascii::identifier\nc" ]
-  x0x684b80 [ label="catk::syntax::Expr\nif(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }" ]
-  x0x684b80 -> { x0x6844c0 }
-  x0x6844c0 [ label="catk::syntax::IfExpr\nif(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }" ]
-  x0x6844c0 -> { x0x685b40, x0x6841f0, x0x685990 }
-  x0x685b40 [ label="catk::syntax::Expr\nb" ]
-  x0x685b40 -> { x0x684040 }
-  x0x684040 [ label="tao::pegtl::ascii::identifier\nb" ]
-  x0x6841f0 [ label="catk::syntax::Expr\n{\r\n    ret c + b;\r\n  }" ]
-  x0x6841f0 -> { x0x6856c0 }
-  x0x6856c0 [ label="catk::syntax::RetContext\n{\r\n    ret c + b;\r\n  }" ]
-  x0x6856c0 -> { x0x684a60 }
-  x0x684a60 [ label="catk::syntax::RetStmt\nret c + b;" ]
-  x0x684a60 -> { x0x685750 }
-  x0x685750 [ label="catk::syntax::Expr\nc + b" ]
-  x0x685750 -> { x0x6857e0 }
-  x0x6857e0 [ label="catk::syntax::BinExpr\nc + b" ]
-  x0x6857e0 -> { x0x684670, x0x684790, x0x684160 }
-  x0x684670 [ label="tao::pegtl::ascii::identifier\nc" ]
-  x0x684790 [ label="catk::syntax::BinOp\n+" ]
-  x0x684160 [ label="catk::syntax::Expr\nb" ]
-  x0x684160 -> { x0x685c60 }
-  x0x685c60 [ label="tao::pegtl::ascii::identifier\nb" ]
-  x0x685990 [ label="catk::syntax::Expr\n{\r\n    ret b;\r\n  }" ]
-  x0x685990 -> { x0x685870 }
-  x0x685870 [ label="catk::syntax::RetContext\n{\r\n    ret b;\r\n  }" ]
-  x0x685870 -> { x0x685900 }
-  x0x685900 [ label="catk::syntax::RetStmt\nret b;" ]
-  x0x685900 -> { x0x6843a0 }
-  x0x6843a0 [ label="catk::syntax::Expr\nb" ]
-  x0x6843a0 -> { x0x685a20 }
-  x0x685a20 [ label="tao::pegtl::ascii::identifier\nb" ]
+  x0x12e6b70 [ label="ROOT" ]
+  x0x12e6b70 -> { x0x12e6d20 }
+  x0x12e6d20 [ label="catk::syntax::ContextStmts\na = 0i32;\r\nb = 1i32;\r\nc = 2i32;\r\n\r\nr0 = [a,b,c] {\r\n  x = a + b;\r\n  ret x * c;\r\n};\r\n\r\nr1 = if(a) {\r\n  ret b;\r\n} else [c] {\r\n  ret c;\r\n};\r\n\r\naddmul = fn (a, b) [c] {\r\n  ret if(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }\r\n  ;\r\n};\r\naddmul2 = fn (a, b) {\r\n  ret if(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }\r\n  ;\r\n};\r\n\r\nret a;" ]
+  x0x12e6d20 -> { x0x12e6fe0, x0x8d2de0, x0x8d28d0, x0x8d2570, x0x12e88c0, x0x12e8830, x0x12eba10, x0x8d49b0 }
+  x0x12e6fe0 [ label="catk::syntax::AssignStmt\na = 0i32;" ]
+  x0x12e6fe0 -> { x0x12e7070, x0x8d24e0 }
+  x0x12e7070 [ label="catk::syntax::AssignLeftHand\na" ]
+  x0x12e7070 -> { x0x12e7220 }
+  x0x12e7220 [ label="tao::pegtl::ascii::identifier\na" ]
+  x0x8d24e0 [ label="catk::syntax::IntLiteral\n0i32" ]
+  x0x8d24e0 -> { x0x8d2b10, x0x8d2ba0 }
+  x0x8d2b10 [ label="catk::syntax::DecIntLiteral\n0" ]
+  x0x8d2ba0 [ label="catk::syntax::IntTag\ni32" ]
+  x0x8d2de0 [ label="catk::syntax::AssignStmt\nb = 1i32;" ]
+  x0x8d2de0 -> { x0x8d3380, x0x8d3020 }
+  x0x8d3380 [ label="catk::syntax::AssignLeftHand\nb" ]
+  x0x8d3380 -> { x0x8d2840 }
+  x0x8d2840 [ label="tao::pegtl::ascii::identifier\nb" ]
+  x0x8d3020 [ label="catk::syntax::IntLiteral\n1i32" ]
+  x0x8d3020 -> { x0x8d2e70, x0x8d3140 }
+  x0x8d2e70 [ label="catk::syntax::DecIntLiteral\n1" ]
+  x0x8d3140 [ label="catk::syntax::IntTag\ni32" ]
+  x0x8d28d0 [ label="catk::syntax::AssignStmt\nc = 2i32;" ]
+  x0x8d28d0 -> { x0x8d30b0, x0x8d2720 }
+  x0x8d30b0 [ label="catk::syntax::AssignLeftHand\nc" ]
+  x0x8d30b0 -> { x0x8d2600 }
+  x0x8d2600 [ label="tao::pegtl::ascii::identifier\nc" ]
+  x0x8d2720 [ label="catk::syntax::IntLiteral\n2i32" ]
+  x0x8d2720 -> { x0x8d2d50, x0x8d3260 }
+  x0x8d2d50 [ label="catk::syntax::DecIntLiteral\n2" ]
+  x0x8d3260 [ label="catk::syntax::IntTag\ni32" ]
+  x0x8d2570 [ label="catk::syntax::AssignStmt\nr0 = [a,b,c] {\r\n  x = a + b;\r\n  ret x * c;\r\n};" ]
+  x0x8d2570 -> { x0x8d2690, x0x8d32f0 }
+  x0x8d2690 [ label="catk::syntax::AssignLeftHand\nr0" ]
+  x0x8d2690 -> { x0x8d31d0 }
+  x0x8d31d0 [ label="tao::pegtl::ascii::identifier\nr0" ]
+  x0x8d32f0 [ label="catk::syntax::RetContext\n[a,b,c] {\r\n  x = a + b;\r\n  ret x * c;\r\n}" ]
+  x0x8d32f0 -> { x0x8d2a80, x0x12e90a0 }
+  x0x8d2a80 [ label="catk::syntax::CaptureList\n[a,b,c]" ]
+  x0x8d2a80 -> { x0x12e9ac0, x0x12e92e0, x0x12e8a70 }
+  x0x12e9ac0 [ label="catk::syntax::CaptureItem\na" ]
+  x0x12e92e0 [ label="catk::syntax::CaptureItem\nb" ]
+  x0x12e8a70 [ label="catk::syntax::CaptureItem\nc" ]
+  x0x12e90a0 [ label="catk::syntax::ContextStmts\n\r\n  x = a + b;\r\n  ret x * c;\r\n" ]
+  x0x12e90a0 -> { x0x12e95b0, x0x12e91c0 }
+  x0x12e95b0 [ label="catk::syntax::AssignStmt\nx = a + b;" ]
+  x0x12e95b0 -> { x0x12e9400, x0x12e84d0 }
+  x0x12e9400 [ label="catk::syntax::AssignLeftHand\nx" ]
+  x0x12e9400 -> { x0x12e8b00 }
+  x0x12e8b00 [ label="tao::pegtl::ascii::identifier\nx" ]
+  x0x12e84d0 [ label="catk::syntax::BinExpr\na + b" ]
+  x0x12e84d0 -> { x0x12e8320, x0x12e9d90, x0x12e87a0 }
+  x0x12e8320 [ label="tao::pegtl::ascii::identifier\na" ]
+  x0x12e9d90 [ label="catk::syntax::BinOp\n+" ]
+  x0x12e87a0 [ label="tao::pegtl::ascii::identifier\nb" ]
+  x0x12e91c0 [ label="catk::syntax::RetStmt\nret x * c;" ]
+  x0x12e91c0 -> { x0x12e8560, x0x12e9640 }
+  x0x12e8560 [ label="catk::syntax::RetOp\nret" ]
+  x0x12e9640 [ label="catk::syntax::BinExpr\nx * c" ]
+  x0x12e9640 -> { x0x12e85f0, x0x12e8290, x0x12e96d0 }
+  x0x12e85f0 [ label="tao::pegtl::ascii::identifier\nx" ]
+  x0x12e8290 [ label="catk::syntax::BinOp\n*" ]
+  x0x12e96d0 [ label="tao::pegtl::ascii::identifier\nc" ]
+  x0x12e88c0 [ label="catk::syntax::AssignStmt\nr1 = if(a) {\r\n  ret b;\r\n} else [c] {\r\n  ret c;\r\n};" ]
+  x0x12e88c0 -> { x0x12e8440, x0x12e9370 }
+  x0x12e8440 [ label="catk::syntax::AssignLeftHand\nr1" ]
+  x0x12e8440 -> { x0x12e83b0 }
+  x0x12e83b0 [ label="tao::pegtl::ascii::identifier\nr1" ]
+  x0x12e9370 [ label="catk::syntax::IfExpr\nif(a) {\r\n  ret b;\r\n} else [c] {\r\n  ret c;\r\n}" ]
+  x0x12e9370 -> { x0x12e8200, x0x12e9760, x0x12e8680, x0x12e9be0 }
+  x0x12e8200 [ label="catk::syntax::IfOp\nif" ]
+  x0x12e9760 [ label="tao::pegtl::ascii::identifier\na" ]
+  x0x12e8680 [ label="catk::syntax::RetContext\n{\r\n  ret b;\r\n}" ]
+  x0x12e8680 -> { x0x12e8710 }
+  x0x12e8710 [ label="catk::syntax::ContextStmts\n\r\n  ret b;\r\n" ]
+  x0x12e8710 -> { x0x12e97f0 }
+  x0x12e97f0 [ label="catk::syntax::RetStmt\nret b;" ]
+  x0x12e97f0 -> { x0x12e8ef0, x0x12e9010 }
+  x0x12e8ef0 [ label="catk::syntax::RetOp\nret" ]
+  x0x12e9010 [ label="tao::pegtl::ascii::identifier\nb" ]
+  x0x12e9be0 [ label="catk::syntax::RetContext\n[c] {\r\n  ret c;\r\n}" ]
+  x0x12e9be0 -> { x0x12e8b90, x0x12e9130 }
+  x0x12e8b90 [ label="catk::syntax::CaptureList\n[c]" ]
+  x0x12e8b90 -> { x0x12e8f80 }
+  x0x12e8f80 [ label="catk::syntax::CaptureItem\nc" ]
+  x0x12e9130 [ label="catk::syntax::ContextStmts\n\r\n  ret c;\r\n" ]
+  x0x12e9130 -> { x0x12e9d00 }
+  x0x12e9d00 [ label="catk::syntax::RetStmt\nret c;" ]
+  x0x12e9d00 -> { x0x12e8c20, x0x12e9250 }
+  x0x12e8c20 [ label="catk::syntax::RetOp\nret" ]
+  x0x12e9250 [ label="tao::pegtl::ascii::identifier\nc" ]
+  x0x12e8830 [ label="catk::syntax::AssignStmt\naddmul = fn (a, b) [c] {\r\n  ret if(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }\r\n  ;\r\n};" ]
+  x0x12e8830 -> { x0x12e8950, x0x12e7f30 }
+  x0x12e8950 [ label="catk::syntax::AssignLeftHand\naddmul" ]
+  x0x12e8950 -> { x0x12e7fc0 }
+  x0x12e7fc0 [ label="tao::pegtl::ascii::identifier\naddmul" ]
+  x0x12e7f30 [ label="catk::syntax::LambdaLiteral\nfn (a, b) [c] {\r\n  ret if(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }\r\n  ;\r\n}" ]
+  x0x12e7f30 -> { x0x12e8d40, x0x12e9910 }
+  x0x12e8d40 [ label="catk::syntax::ParamList\na, b" ]
+  x0x12e8d40 -> { x0x12e8dd0, x0x12e9520 }
+  x0x12e8dd0 [ label="catk::syntax::Param\na" ]
+  x0x12e8dd0 -> { x0x12e9b50 }
+  x0x12e9b50 [ label="tao::pegtl::ascii::identifier\na" ]
+  x0x12e9520 [ label="catk::syntax::Param\nb" ]
+  x0x12e9520 -> { x0x12e9880 }
+  x0x12e9880 [ label="tao::pegtl::ascii::identifier\nb" ]
+  x0x12e9910 [ label="catk::syntax::RetContext\n[c] {\r\n  ret if(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }\r\n  ;\r\n}" ]
+  x0x12e9910 -> { x0x12e9c70, x0x12e99a0 }
+  x0x12e9c70 [ label="catk::syntax::CaptureList\n[c]" ]
+  x0x12e9c70 -> { x0x12e9e20 }
+  x0x12e9e20 [ label="catk::syntax::CaptureItem\nc" ]
+  x0x12e99a0 [ label="catk::syntax::ContextStmts\n\r\n  ret if(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }\r\n  ;\r\n" ]
+  x0x12e99a0 -> { x0x8d2c30 }
+  x0x8d2c30 [ label="catk::syntax::RetStmt\nret if(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }\r\n  ;" ]
+  x0x8d2c30 -> { x0x8d27b0, x0x12e8050 }
+  x0x8d27b0 [ label="catk::syntax::RetOp\nret" ]
+  x0x12e8050 [ label="catk::syntax::IfExpr\nif(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }" ]
+  x0x12e8050 -> { x0x12e80e0, x0x8d2960, x0x8d2f00, x0x12ecd30 }
+  x0x12e80e0 [ label="catk::syntax::IfOp\nif" ]
+  x0x8d2960 [ label="tao::pegtl::ascii::identifier\na" ]
+  x0x8d2f00 [ label="catk::syntax::BinExpr\n(a + b) * c" ]
+  x0x8d2f00 -> { x0x12ec160, x0x12ec310, x0x12eb500 }
+  x0x12ec160 [ label="catk::syntax::BinExpr\na + b" ]
+  x0x12ec160 -> { x0x12eb980, x0x12eb110, x0x12ebb30 }
+  x0x12eb980 [ label="tao::pegtl::ascii::identifier\na" ]
+  x0x12eb110 [ label="catk::syntax::BinOp\n+" ]
+  x0x12ebb30 [ label="tao::pegtl::ascii::identifier\nb" ]
+  x0x12ec310 [ label="catk::syntax::BinOp\n*" ]
+  x0x12eb500 [ label="tao::pegtl::ascii::identifier\nc" ]
+  x0x12ecd30 [ label="catk::syntax::IfExpr\nif(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }" ]
+  x0x12ecd30 -> { x0x12ec820, x0x12ebf20, x0x12ec0d0, x0x12eb6b0 }
+  x0x12ec820 [ label="catk::syntax::IfOp\nif" ]
+  x0x12ebf20 [ label="tao::pegtl::ascii::identifier\nb" ]
+  x0x12ec0d0 [ label="catk::syntax::RetContext\n{\r\n    ret c + b;\r\n  }" ]
+  x0x12ec0d0 -> { x0x12ec1f0 }
+  x0x12ec1f0 [ label="catk::syntax::ContextStmts\n\r\n    ret c + b;\r\n  " ]
+  x0x12ec1f0 -> { x0x12ebe90 }
+  x0x12ebe90 [ label="catk::syntax::RetStmt\nret c + b;" ]
+  x0x12ebe90 -> { x0x12ecc10, x0x12eb230 }
+  x0x12ecc10 [ label="catk::syntax::RetOp\nret" ]
+  x0x12eb230 [ label="catk::syntax::BinExpr\nc + b" ]
+  x0x12eb230 -> { x0x12ec9d0, x0x12ec280, x0x12ec430 }
+  x0x12ec9d0 [ label="tao::pegtl::ascii::identifier\nc" ]
+  x0x12ec280 [ label="catk::syntax::BinOp\n+" ]
+  x0x12ec430 [ label="tao::pegtl::ascii::identifier\nb" ]
+  x0x12eb6b0 [ label="catk::syntax::RetContext\n{\r\n    ret b;\r\n  }" ]
+  x0x12eb6b0 -> { x0x12eb350 }
+  x0x12eb350 [ label="catk::syntax::ContextStmts\n\r\n    ret b;\r\n  " ]
+  x0x12eb350 -> { x0x12ec040 }
+  x0x12ec040 [ label="catk::syntax::RetStmt\nret b;" ]
+  x0x12ec040 -> { x0x12eaf60, x0x12eb1a0 }
+  x0x12eaf60 [ label="catk::syntax::RetOp\nret" ]
+  x0x12eb1a0 [ label="tao::pegtl::ascii::identifier\nb" ]
+  x0x12eba10 [ label="catk::syntax::AssignStmt\naddmul2 = fn (a, b) {\r\n  ret if(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }\r\n  ;\r\n};" ]
+  x0x12eba10 -> { x0x12ec4c0, x0x12ec550 }
+  x0x12ec4c0 [ label="catk::syntax::AssignLeftHand\naddmul2" ]
+  x0x12ec4c0 -> { x0x12ecca0 }
+  x0x12ecca0 [ label="tao::pegtl::ascii::identifier\naddmul2" ]
+  x0x12ec550 [ label="catk::syntax::LambdaLiteral\nfn (a, b) {\r\n  ret if(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }\r\n  ;\r\n}" ]
+  x0x12ec550 -> { x0x12eb590, x0x12ece50 }
+  x0x12eb590 [ label="catk::syntax::ParamList\na, b" ]
+  x0x12eb590 -> { x0x12eb860, x0x12eb2c0 }
+  x0x12eb860 [ label="catk::syntax::Param\na" ]
+  x0x12eb860 -> { x0x12ebe00 }
+  x0x12ebe00 [ label="tao::pegtl::ascii::identifier\na" ]
+  x0x12eb2c0 [ label="catk::syntax::Param\nb" ]
+  x0x12eb2c0 -> { x0x12ec5e0 }
+  x0x12ec5e0 [ label="tao::pegtl::ascii::identifier\nb" ]
+  x0x12ece50 [ label="catk::syntax::RetContext\n{\r\n  ret if(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }\r\n  ;\r\n}" ]
+  x0x12ece50 -> { x0x12ec670 }
+  x0x12ec670 [ label="catk::syntax::ContextStmts\n\r\n  ret if(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }\r\n  ;\r\n" ]
+  x0x12ec670 -> { x0x12eaff0 }
+  x0x12eaff0 [ label="catk::syntax::RetStmt\nret if(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }\r\n  ;" ]
+  x0x12eaff0 -> { x0x12ebaa0, x0x12eb740 }
+  x0x12ebaa0 [ label="catk::syntax::RetOp\nret" ]
+  x0x12eb740 [ label="catk::syntax::IfExpr\nif(a)\r\n    (a + b) * c \r\n  else if(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }" ]
+  x0x12eb740 -> { x0x12eb8f0, x0x12ebc50, x0x12ebbc0, x0x12ebfb0 }
+  x0x12eb8f0 [ label="catk::syntax::IfOp\nif" ]
+  x0x12ebc50 [ label="tao::pegtl::ascii::identifier\na" ]
+  x0x12ebbc0 [ label="catk::syntax::BinExpr\n(a + b) * c" ]
+  x0x12ebbc0 -> { x0x12eb470, x0x12ebd70, x0x12ec700 }
+  x0x12eb470 [ label="catk::syntax::BinExpr\na + b" ]
+  x0x12eb470 -> { x0x12e8cb0, x0x12e8e60, x0x12ecb80 }
+  x0x12e8cb0 [ label="tao::pegtl::ascii::identifier\na" ]
+  x0x12e8e60 [ label="catk::syntax::BinOp\n+" ]
+  x0x12ecb80 [ label="tao::pegtl::ascii::identifier\nb" ]
+  x0x12ebd70 [ label="catk::syntax::BinOp\n*" ]
+  x0x12ec700 [ label="tao::pegtl::ascii::identifier\nc" ]
+  x0x12ebfb0 [ label="catk::syntax::IfExpr\nif(b) {\r\n    ret c + b;\r\n  } else {\r\n    ret b;\r\n  }" ]
+  x0x12ebfb0 -> { x0x12ec8b0, x0x12e9490, x0x12ecaf0, x0x8d4380 }
+  x0x12ec8b0 [ label="catk::syntax::IfOp\nif" ]
+  x0x12e9490 [ label="tao::pegtl::ascii::identifier\nb" ]
+  x0x12ecaf0 [ label="catk::syntax::RetContext\n{\r\n    ret c + b;\r\n  }" ]
+  x0x12ecaf0 -> { x0x8d2f90 }
+  x0x8d2f90 [ label="catk::syntax::ContextStmts\n\r\n    ret c + b;\r\n  " ]
+  x0x8d2f90 -> { x0x12e8170 }
+  x0x12e8170 [ label="catk::syntax::RetStmt\nret c + b;" ]
+  x0x12e8170 -> { x0x12e89e0, x0x8d2cc0 }
+  x0x12e89e0 [ label="catk::syntax::RetOp\nret" ]
+  x0x8d2cc0 [ label="catk::syntax::BinExpr\nc + b" ]
+  x0x8d2cc0 -> { x0x8d40b0, x0x8d52b0, x0x8d4ec0 }
+  x0x8d40b0 [ label="tao::pegtl::ascii::identifier\nc" ]
+  x0x8d52b0 [ label="catk::syntax::BinOp\n+" ]
+  x0x8d4ec0 [ label="tao::pegtl::ascii::identifier\nb" ]
+  x0x8d4380 [ label="catk::syntax::RetContext\n{\r\n    ret b;\r\n  }" ]
+  x0x8d4380 -> { x0x8d4770 }
+  x0x8d4770 [ label="catk::syntax::ContextStmts\n\r\n    ret b;\r\n  " ]
+  x0x8d4770 -> { x0x8d4f50 }
+  x0x8d4f50 [ label="catk::syntax::RetStmt\nret b;" ]
+  x0x8d4f50 -> { x0x8d44a0, x0x8d4fe0 }
+  x0x8d44a0 [ label="catk::syntax::RetOp\nret" ]
+  x0x8d4fe0 [ label="tao::pegtl::ascii::identifier\nb" ]
+  x0x8d49b0 [ label="catk::syntax::RetStmt\nret a;" ]
+  x0x8d49b0 -> { x0x8d4ad0, x0x8d5070 }
+  x0x8d4ad0 [ label="catk::syntax::RetOp\nret" ]
+  x0x8d5070 [ label="tao::pegtl::ascii::identifier\na" ]
 }

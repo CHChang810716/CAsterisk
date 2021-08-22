@@ -1,4 +1,3 @@
-#pragma once
 #include <catk/syntax.hpp>
 #include <catk/symdb.hpp>
 #include <fmt/format.h>

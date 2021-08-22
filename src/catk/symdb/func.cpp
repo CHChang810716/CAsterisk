@@ -36,15 +36,17 @@ static struct {
 } ret_type;
 
 void Func::emit_invoke(const std::vector<Symbol*>& params) const {
-  std::visit(catk::symdb::emit_invoke, *this, params);
+  std::visit([&](const auto& var) {
+    catk::symdb::emit_invoke(var, params);
+  }, static_cast<const Base&>(*this));
 }
 
 void Func::emit_def() const {
-  std::visit(catk::symdb::emit_def, *this);
+  std::visit(catk::symdb::emit_def, static_cast<const Base&>(*this));
 }
 
 Type* Func::ret_type() const {
-  std::visit(catk::symdb::ret_type, *this);
+  std::visit(catk::symdb::ret_type, static_cast<const Base&>(*this));
 }
   
 

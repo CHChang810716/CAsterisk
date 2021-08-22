@@ -9,6 +9,7 @@ symdb::Type* context(
   syntax::AST& ast, // the return statement
   symdb::Symbol& sym 
 ) {
+  sym.get_ref_to();
 }
 
 }

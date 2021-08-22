@@ -363,7 +363,7 @@ struct RetContext : tao::pegtl::seq<
     assert(ast.template is<RetContext>());
     auto& stmt_list = stmts(ast);
     auto& should_be_ret = *(stmt_list.children.back());
-    assert(should_be_ret.template is<ReStmt>());
+    assert(should_be_ret.template is<RetStmt>());
     return should_be_ret;
   }
 };
@@ -377,7 +377,7 @@ struct LambdaLiteral : tao::pegtl::if_must<
   RetContext
 > {
   template<class T>
-  static auto& params(T& ast) {
+  static auto params(T& ast) {
     assert(ast.template is<LambdaLiteral>());
     std::vector<T*> res;
     for(auto&& up : ast.children.at(0)->children) {
@@ -488,9 +488,14 @@ struct Expr : tao::pegtl::sor<
   }
 };
 
-struct File : tao::pegtl::until<
-  tao::pegtl::at<tao::pegtl::eof>,
-  SpacePad<tao::pegtl::must<Statement>>
+// struct File : tao::pegtl::until<
+//   tao::pegtl::at<tao::pegtl::eof>,
+//   SpacePad<tao::pegtl::must<Statement>>
+// > {
+// };
+struct File : tao::pegtl::seq<
+  ContextStmts,
+  tao::pegtl::eof
 > {
 };
 

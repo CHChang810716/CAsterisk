@@ -19,7 +19,10 @@ struct LRMAdd : public LRMOp {
 
 };
 
-struct Func : public std::variant<Symbol*,LRMOp>{
+using FuncBase = std::variant<Symbol*,LRMOp>;
+
+struct Func : public FuncBase {
+  using Base = FuncBase;
   void emit_invoke(const std::vector<Symbol*>& params) const;
   void emit_def() const;
   Type* ret_type() const;

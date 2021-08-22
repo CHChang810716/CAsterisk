@@ -33,3 +33,5 @@ addmul2 = fn (a, b) {
   }
   ;
 };
+
+ret a;
