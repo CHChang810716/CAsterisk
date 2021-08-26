@@ -85,5 +85,8 @@ struct FuncType : public Type {
   std::vector<Type*> params;
 };
 
+static inline PrimaryTypes pt_var_to_enum(const PrimaryUnion& v) {
+  return (PrimaryTypes)v.index();
+}
 
 }

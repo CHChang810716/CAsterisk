@@ -57,4 +57,15 @@ void expr_tree(const Symbol& sym, std::ostream& out) {
   }
   out << "}" << "[color=\"blue\"]" << std::endl;
 }
+void module_node(const Symbol& sym, std::ostream& out) {
+  if(!sym.is_module()) return;
+  out << graph_id(sym) << " -> {";
+  bool is_first = true;
+  for(auto&& p_sym : sym.get_ref_to()) {
+    out << ((!is_first) ? "," : "") << graph_id(*p_sym) ;
+    is_first = false;
+  }
+  out << "}" << "[color=\"red\"]" << std::endl;
+
+}
 }

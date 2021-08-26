@@ -8,6 +8,7 @@ std::string graph_id(const Symbol& sym);
 void accessible(const Symbol& sym, std::ostream& out);
 void assign_to(const Symbol& sym, std::ostream& out);
 void expr_tree(const Symbol& sym, std::ostream& out);
+void module_node(const Symbol& sym, std::ostream& out);
 
 
 template<class DB>
@@ -19,6 +20,9 @@ void sym_graph(
   for(auto&& sym : symdb) {
     std::stringstream label;
     auto label_item = "\\n{}";
+    if(sym.is_module()) {
+      label << fmt::format(label_item, "<module>");
+    }
     if(sym.is_context()) {
       label << fmt::format(label_item, "<context>");
     }
@@ -62,6 +66,7 @@ void sym_graph(
     accessible(sym, out);
     assign_to(sym, out);
     expr_tree(sym, out);
+    module_node(sym, out);
   }
   out << "}" << std::endl;
 }

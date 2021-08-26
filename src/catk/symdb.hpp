@@ -8,17 +8,17 @@
 namespace catk {
 
 // TODO: probably should use set
-template<class Malloc = std::allocator<symdb::Type>>
-struct TypeDB : public std::deque<symdb::Type, Malloc>{
-  using Base = std::deque<symdb::Type, Malloc>;
-  symdb::Type* alloc() {
-    Base::push_back(symdb::Type());
-    return &Base::back();
+
+
+using TypeDBBase = std::unordered_map<std::string, symdb::Type>;
+struct TypeDB : public TypeDBBase {
+  symdb::Type* alloc(const std::string& name) {
+    return &((*this)[name]);
   }
+  symdb::Type* find(const symdb::PrimaryUnion& v);
 };
-template<class Malloc>
-struct SymDB : public std::deque<symdb::Symbol, Malloc>{
-  using Base = std::deque<symdb::Symbol, Malloc>;
+struct SymDB : public std::deque<symdb::Symbol>{
+  using Base = std::deque<symdb::Symbol>;
   symdb::Symbol* alloc() {
     symdb::Symbol tmp;
     tmp.db = this;
@@ -40,7 +40,7 @@ struct FuncDBTrait {
       return true;
     }
   };
-  using Value = symdb::Func;
+  using Value = std::unique_ptr<symdb::IFunc>;
   struct Hasher {
     using argument_type = Key;
     using result_type   = std::size_t;
@@ -63,8 +63,8 @@ struct FuncDB : public FuncDBTrait::Map {
   using Base = typename FuncDBTrait::Map;
 };
 
-TypeDB<>& get_type_db();
-SymDB<>& get_sym_db();
+TypeDB& get_type_db();
+SymDB& get_sym_db();
 FuncDB& get_func_db();
 
 }
