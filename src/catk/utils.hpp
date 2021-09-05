@@ -1,6 +1,7 @@
 #pragma once
 #include <tao/pegtl/contrib/parse_tree.hpp>
 #include "syntax/ast.hpp"
+#include <llvm/IR/IRBuilder.h>
 namespace catk {
 
 using ASTPtr = syntax::AST*;
@@ -96,6 +97,11 @@ void print_dot( std::ostream& os, const Node& n )
    os << "digraph parse_tree\n{\n";
    print_dot_node( os, n, "ROOT" );
    os << "}\n";
+}
+
+inline static auto& get_llvm_context() {
+   static thread_local llvm::LLVMContext context;
+   return context;
 }
 
 }

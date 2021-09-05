@@ -7,6 +7,8 @@
 
 #include "primary_add_helper.hpp"
 
+#include <llvm/IR/TypeBuilder.h>
+
 namespace catk::symdb {
 
 struct IFunc {
@@ -15,7 +17,7 @@ struct IFunc {
     const std::vector<std::string>& labels
   ) const = 0;
   virtual void emit_def() const = 0;
-  Type* ret_type() const { return this->type_->ret; }
+  Type* ret_type() const { return this->type_->getReturnType(); }
 private:
   FuncType* type_;
 };
@@ -32,7 +34,7 @@ struct IPrimaryOp : public IFunc {
 template<PrimaryTypes op0_t, PrimaryTypes op1_t>
 struct PrimaryAdd : public IPrimaryOp {
   PrimaryAdd() 
-  : type_()
+  : type_(nullptr)
   {
 
   }

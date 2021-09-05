@@ -10,13 +10,13 @@ namespace catk {
 // TODO: probably should use set
 
 
-using TypeDBBase = std::unordered_map<std::string, symdb::Type>;
-struct TypeDB : public TypeDBBase {
-  symdb::Type* alloc(const std::string& name) {
-    return &((*this)[name]);
-  }
-  symdb::Type* find(const symdb::PrimaryUnion& v);
-};
+// using TypeDBBase = std::unordered_map<std::string, symdb::Type>;
+// struct TypeDB : public TypeDBBase {
+//   symdb::Type* alloc(const std::string& name) {
+//     return &((*this)[name]);
+//   }
+//   symdb::Type* find(const symdb::PrimaryUnion& v);
+// };
 struct SymDB : public std::deque<symdb::Symbol>{
   using Base = std::deque<symdb::Symbol>;
   symdb::Symbol* alloc() {
@@ -63,7 +63,7 @@ struct FuncDB : public FuncDBTrait::Map {
   using Base = typename FuncDBTrait::Map;
 };
 
-TypeDB& get_type_db();
+// TypeDB& get_type_db();
 SymDB& get_sym_db();
 FuncDB& get_func_db();
 

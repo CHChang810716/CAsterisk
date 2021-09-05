@@ -60,7 +60,7 @@ private:
     is_param_       : 1
   ;
 public:
-  SymDB<>*                    db                  ;
+  SymDB*                      db                  ;
 private:
   // the children and parent is about the context relation ship
   std::vector<Symbol*>        children_           ;
