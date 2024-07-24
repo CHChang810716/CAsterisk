@@ -35,3 +35,6 @@ build/
 stage/
 .vscode/
 *build/
+
+.bak
+build_x
