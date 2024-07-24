@@ -59,6 +59,7 @@ public:
       out_.write(last_beg, line_size);
       written += line_size;
     }
+    state_ = need_indent ? NeedIndent : DirectPrint;
     return written;
   }
 private:
