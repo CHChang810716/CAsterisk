@@ -3,7 +3,7 @@ fib_impl = fn(pfib, i) {
   ret if(i < 2i32) 
       i 
     else 
-      pfib(i - 1i32) + pfib(i - 2i32);
+      pfib(pfib, i - 1i32) + pfib(pfib, i - 2i32);
 };
 
 fib = fn(i) [fib_impl] {
