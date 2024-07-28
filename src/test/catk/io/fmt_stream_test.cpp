@@ -7,7 +7,7 @@ namespace io = catk::io;
 TEST(io_test, fmt_stream) {
   std::stringstream stream;
   io::FmtStream out(stream);
-  out->set_indent(2);
+  out << io::add_indent(2);
   out << "xxx";
   out << "yyy";
   out << "mmm\n";

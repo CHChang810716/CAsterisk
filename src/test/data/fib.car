@@ -1,8 +1,13 @@
-fib = fn(i) {
+
+fib_impl = fn(pfib, i) {
   ret if(i < 2i32) 
       i 
     else 
-      fib(i = i - 1i32) + fib(i = i - 2i32);
+      pfib(i - 1i32) + pfib(i - 2i32);
+};
+
+fib = fn(i) [fib_impl] {
+  ret fib_impl(fib_impl, i);
 };
 
 x = 10i64;

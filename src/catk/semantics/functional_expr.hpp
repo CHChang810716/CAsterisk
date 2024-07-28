@@ -31,6 +31,8 @@ public:
   void set_opnds(std::vector<Expr*>&& opnds) {
     opnds_ = std::move(opnds);
   }
+  virtual void dump(catk::io::FmtStream& out) const;
+  virtual std::vector<Expr*> dependencies() const;
   static FunctionalExpr* from_ast(catk::syntax::AST& ast);
 };
 using RHSExpr = FunctionalExpr;

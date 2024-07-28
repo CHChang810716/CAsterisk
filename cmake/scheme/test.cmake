@@ -1,3 +1,4 @@
+set(AKT_VSCODE_GCC_TASK_TMPL ${CMAKE_CURRENT_LIST_DIR}/../vscode/lanuch_gdb.in)
 include(${CMAKE_CURRENT_LIST_DIR}/exe.cmake)
 target_link_libraries(${AKT_TARGET} PRIVATE GTest::gtest_main)
 add_test(

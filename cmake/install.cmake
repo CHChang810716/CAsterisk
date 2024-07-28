@@ -21,6 +21,12 @@ install(
     FILES ${AKT_PROJECT_CONFIG}
     DESTINATION ${AKT_CONFIG_INSTALL_DIR}
 )
+if (BUILD_TEST)
+    install(
+        DIRECTORY ${CMAKE_SOURCE_DIR}/src/test/data
+        DESTINATION ${CMAKE_INSTALL_PREFIX}/test
+    )
+endif()
 install(
     TARGETS ${exe_targets} ${lib_targets} ${test_targets}
     EXPORT ${AKT_TARGETS_EXPORT}

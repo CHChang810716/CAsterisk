@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <catk/syntax/ast.hpp>
 #include <avalon/debug_id.hpp>
+#include <string>
 
 namespace catk::semantics {
 
@@ -42,4 +43,37 @@ class RetOp {};
 BinOp ast_str_to_binop(const std::string& str);
 UnaryOp ast_str_to_unaryop(const std::string& str);
 
+}
+// to_string extension
+namespace std {
+  inline static std::string to_string(catk::semantics::BinOp bop) {
+    using namespace catk::semantics;
+    switch(bop) {
+      case BOP_ADD: return "+";
+      case BOP_SUB: return "-";
+      case BOP_MUL: return "*";
+      case BOP_DIV: return "/";
+      case BOP_MOD: return "%";
+      case BOP_AND: return "&";
+      case BOP_OR: return "|";
+      case BOP_XOR: return "^"; 
+      case BOP_LT: return "<";
+      case BOP_GT: return ">";
+      case BOP_EQ: return "==";
+      case BOP_LE: return "<=";
+      case BOP_GE: return ">=";
+      case BOP_NE: return "!=";
+    }
+  }
+  inline static std::string to_string(catk::semantics::UnaryOp uop) {
+    using namespace catk::semantics;
+    switch(uop) {
+      case UOP_ADD: return "+";
+      case UOP_SUB: return "-";
+      case UOP_INV: return "~";
+      case UOP_DEREF: return "*";
+      case UOP_NOT: return "!";
+      case UOP_ADDROF: return "&";
+    }
+  }
 }

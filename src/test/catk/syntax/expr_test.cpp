@@ -11,7 +11,7 @@ struct Action {
   }
 };
 
-TEST(expr_test, int_literal) {
+TEST(syntax_test, int_literal) {
   using RuleIntLit = tao::pegtl::must<catk::syntax::IntLiteral>;
   using RuleHexIntLit = tao::pegtl::must<catk::syntax::HexIntLiteral>;
   tao::pegtl::memory_input<> hex_0("0xFF87", "");
@@ -42,7 +42,7 @@ TEST(expr_test, int_literal) {
   EXPECT_ANY_THROW((tao::pegtl::parse<RuleIntLit, Action>(not_i_2, cap)));
   EXPECT_ANY_THROW((tao::pegtl::parse<RuleIntLit, Action>(not_i_3, cap)));
 }
-TEST(expr_test, fp_literal) {
+TEST(syntax_test, fp_literal) {
   using RuleFPLit = tao::pegtl::must<catk::syntax::FPLiteral>;
   tao::pegtl::memory_input<> f_0("0f32", "");
   tao::pegtl::memory_input<> f_1("12345f32", "");
@@ -79,7 +79,7 @@ TEST(expr_test, fp_literal) {
   EXPECT_ANY_THROW((tao::pegtl::parse<RuleFPLit, Action>(not_f_3, cap)));
 }
 
-TEST(expr_test, str_literal) {
+TEST(syntax_test, str_literal) {
   using RuleStrLit = tao::pegtl::must<catk::syntax::StringLiteral>;
   tao::pegtl::memory_input<> str_0("\"asdf123\"", "");
   tao::pegtl::memory_input<> str_1("\"\\n\"", "");
@@ -101,7 +101,7 @@ TEST(expr_test, str_literal) {
   EXPECT_ANY_THROW((tao::pegtl::parse<RuleStrLit, Action>(not_str_1, cap)));
 }
 
-TEST(expr_test, array_literal) {
+TEST(syntax_test, array_literal) {
   using RuleArrLit = tao::pegtl::must<catk::syntax::ArrayLiteral>;
 
   tao::pegtl::memory_input<> arr_0("[]", "");
@@ -131,7 +131,7 @@ TEST(expr_test, array_literal) {
 
 }
 
-TEST(expr_test, expr) {
+TEST(syntax_test, expr) {
   using RuleExpr = tao::pegtl::must<catk::syntax::Expr>;
 
   tao::pegtl::memory_input<> expr_0("asdf", "");
@@ -159,7 +159,7 @@ TEST(expr_test, expr) {
   EXPECT_ANY_THROW((tao::pegtl::parse<RuleExpr, Action>(not_expr_1, cap)));
 }
 
-TEST(expr_test, ifexpr) {
+TEST(syntax_test, ifexpr) {
   using RuleIfExpr = tao::pegtl::must<catk::syntax::IfExpr>;
   auto expr_0_str = "if( cond ) case_t else case_f";
   auto expr_1_str = "if( a == b ) a + 1i32 else b + 1i32";
@@ -183,7 +183,7 @@ TEST(expr_test, ifexpr) {
   EXPECT_ANY_THROW((tao::pegtl::parse<RuleIfExpr, Action>(not_expr_1, cap)));
 }
 
-TEST(expr_test, ret_context) {
+TEST(syntax_test, ret_context) {
   using RuleRetCtx = tao::pegtl::must<catk::syntax::RetContext>;
   auto expr_0_str = "{ ret 0i32; }";
   auto expr_1_str = "{ ret if( a == b ) a + 1i32 else b + 1i32; }";
@@ -207,7 +207,7 @@ TEST(expr_test, ret_context) {
   EXPECT_ANY_THROW((tao::pegtl::parse<RuleRetCtx, Action>(not_expr_1, cap)));
 }
 
-TEST(expr_test, def_func_test) {
+TEST(syntax_test, def_func_test) {
   using RuleLambdaExpr = tao::pegtl::must<catk::syntax::LambdaLiteral>;
   auto expr_0_str = "fn () { ret 0i32; }";
   auto expr_1_str = "fn (a) { ret if(a) \"str\" else \"qqq\"; }" ;
@@ -235,7 +235,7 @@ TEST(expr_test, def_func_test) {
   EXPECT_ANY_THROW((tao::pegtl::parse<RuleLambdaExpr, Action>(not_expr_1, cap)));
 }
 
-TEST(stmt_test, basic_test) {
+TEST(syntax_test, statement_basic_test) {
   using RuleStmt = tao::pegtl::must<catk::syntax::Statement>;
   auto stmt_0_str = "a = 3i32;";
   auto stmt_1_str = "a = foo();";
@@ -264,7 +264,7 @@ TEST(stmt_test, basic_test) {
 
 }
 
-TEST(file_test, addmul) {
+TEST(syntax_test, file_addmul) {
   using RuleFile = tao::pegtl::must<catk::syntax::File>;
   auto f = avalon::app::test_data_dir() / "addmul.car";
   tao::pegtl::file_input<> in(f.string());

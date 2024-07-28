@@ -8,11 +8,12 @@ using ASTPtr = syntax::AST*;
 struct InternalBug : std::runtime_error {
    using std::runtime_error::runtime_error;
 };
-constexpr auto rt_assert = [](bool b, const std::string& string) {
-  if(!b) {
-    throw InternalBug(string);
-  }
-};
+namespace detail {
+void rt_assert_internal(bool b, const std::string& msg, const std::string& file, int line);
+}
+
+#define rt_assert(f, msg) catk::detail::rt_assert_internal(f, msg, __FILE__, __LINE__)
+
 template<class OS>
 void escape( OS& os, const char* p, const std::size_t s ) {
    static const char* h = "0123456789abcdef";
@@ -104,4 +105,11 @@ inline static auto& get_llvm_context() {
    return (context);
 }
 
+// helper type for the visitor #4
+template<class... Ts>
+struct overloaded : Ts... { using Ts::operator()...; };
+
+// explicit deduction guide (not needed as of C++20)
+template<class... Ts>
+overloaded(Ts...) -> overloaded<Ts...>;
 }

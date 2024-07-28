@@ -169,12 +169,19 @@ struct Param : tao::pegtl::seq<
   >
 > {
   template<class T>
-  static auto& left_id(T& ast) {
+  static auto& id(T& ast) {
     assert(ast.template is<Param>());
     return *ast.children.at(0);
   }
   template<class T>
-  static auto& right_expr(T& ast) {
+  static bool has_default_expr(T& ast) {
+    assert(ast.template is<Param>());
+    return ast.children.size() > 1;
+
+  }
+
+  template<class T>
+  static auto& default_expr(T& ast) {
     assert(ast.template is<Param>());
     return *ast.children.at(1);
   }
@@ -211,9 +218,9 @@ struct FCallParamBind : tao::pegtl::seq<
   Identifier, SpacePad<tao::pegtl::one<'='>>, Expr
 > {
   template<class T>
-  static auto& param_name(T& ast) {
+  static std::string param_name(T& ast) {
     assert(ast.template is<FCallParamBind>());
-    return *(ast.children[0]);
+    return ast.children[0]->string();
   }
   template<class T>
   static auto& param_expr(T& ast) {
@@ -223,11 +230,17 @@ struct FCallParamBind : tao::pegtl::seq<
 };
 
 struct FCallParamBindList : tao::pegtl::list<FCallParamBind, tao::pegtl::one<','>, tao::pegtl::space> {};
+struct FCallPosParamList : tao::pegtl::list<Expr, tao::pegtl::one<','>, tao::pegtl::space> {};
 
 struct FCallExpr : tao::pegtl::seq<
   Identifier,
   SpacePad<tao::pegtl::one<'('>>, 
-  tao::pegtl::opt<FCallParamBindList>,
+  tao::pegtl::opt<
+    tao::pegtl::sor<
+      FCallParamBindList,
+      FCallPosParamList
+    >
+  >,
   SpacePad<tao::pegtl::one<')'>>
 > {
   template<class T>
@@ -236,25 +249,36 @@ struct FCallExpr : tao::pegtl::seq<
     return *(ast.children.at(0));
   }
   template<class T>
+  static bool is_param_bind_fcall(T& ast) {
+    assert(ast.template is<FCallExpr>());
+    if (ast.children.size() > 0) {
+      auto& param_expr = ast.children[0];
+      return param_expr->template is<FCallParamBind>();
+    } else {
+      return false;
+    }
+  }
+  template<class T>
   static auto opnds(T& ast) {
     assert(ast.template is<FCallExpr>());
     std::vector<T*> params_r;
     for(std::size_t i = 1; i < ast.children.size(); i ++) {
-      auto& param_bind = *(ast.children[i]);
-      params_r.push_back(
-        &FCallParamBind::param_expr(param_bind)
-      );
+      auto* param_expr = ast.children[i].get();
+      if (param_expr->template is<FCallParamBind>()) {
+        param_expr = &FCallParamBind::param_expr(*param_expr);
+      }
+      params_r.push_back(param_expr);
     }
     return params_r;
   }
   template<class T>
   static auto opnd_labels(T& ast) {
     assert(ast.template is<FCallExpr>());
-    std::vector<T*> params_l;
+    std::vector<std::string> params_l;
     for(std::size_t i = 1; i < ast.children.size(); i ++) {
       auto& param_bind = *(ast.children[i]);
       params_l.push_back(
-        &FCallParamBind::param_name(param_bind)
+        FCallParamBind::param_name(param_bind)
       );
     }
     return params_l;

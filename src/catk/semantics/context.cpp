@@ -5,7 +5,9 @@
 #include <catk/semantics/context.hpp>
 #include <catk/semantics/utils.hpp>
 #include <catk/semantics/memory.hpp>
+#include <catk/io/fmt_stream.hpp>
 #include <unordered_set>
+#include <iostream>
 
 namespace catk::semantics {
 
@@ -23,8 +25,8 @@ Context* Context::from_ast(catk::syntax::AST& ast, const std::vector<catk::synta
     }
   } guard{&ctx};
   catk::syntax::AST* pstmts = nullptr;
-  if (ast.is<catk::syntax::File>()) {
-    pstmts = &catk::syntax::File::stmts(ast);
+  if (ast.is_root()) {
+    pstmts = ast.children[0].get();
   } else if (ast.is<catk::syntax::RetContext>()) {
     // handle capture symbol and parameter symbol
     // set pstmts
@@ -39,24 +41,28 @@ Context* Context::from_ast(catk::syntax::AST& ast, const std::vector<catk::synta
     }
     pstmts = &catk::syntax::RetContext::stmts(ast);
   } else {
-    rt_assert(false, "unknown context ast: " + ast.content());
+    rt_assert(false, fmt::format("unknown context ast: <{}> {}", ast.name(), ast.has_content() ? ast.content() : ""));
   }
   for(auto& pparam : params) {
     auto& param = *pparam;
-    auto& id_ast = catk::syntax::Param::left_id(param);
+    rt_assert(!catk::syntax::Param::has_default_expr(param), 
+      "not yet support parameter default value");
+    auto& id_ast = catk::syntax::Param::id(param);
     Symbol *param_sym = Symbol::from_ast(param);
     ctx.accessible_[id_ast.string()] = param_sym;
+    // TODO: default handler
     ctx.params_.push_back(param_sym);
   }
   for(auto&& pstmt : pstmts->children) {
     catk::syntax::AST& stmt = *pstmt;
-    rt_assert(is_context_stmt(stmt), "must be context statement");
+    // std::cout << stmt.content() << std::endl;
+    rt_assert(is_context_stmt(stmt), fmt::format("must be context statement: <{}> {}", stmt.name(), stmt.content()));
     if (stmt.is<syntax::AssignStmt>()) {
       auto name = Symbol::get_name_from_assign_stmt(stmt);
       auto*& sym = ctx.accessible_[name];
       if (sym) continue;
       sym = Symbol::from_ast(stmt);
-      rt_assert(sym != nullptr, "Symbol parse error: " + stmt.content());
+      rt_assert(sym != nullptr, fmt::format("Symbol analyze failed: <{}> {}", stmt.name(), stmt.content()));
     } else if (stmt.is<syntax::RetStmt>()) {
       ctx.ret_expr_ = RetExpr::from_ast(stmt);
     }
@@ -65,36 +71,80 @@ Context* Context::from_ast(catk::syntax::AST& ast, const std::vector<catk::synta
   return &ctx;
 }
 
-void Context::dump(std::ostream& out) const {
-  std::unordered_set<Symbol*> caps;
-  std::unordered_set<Symbol*> params;
+static void dump_deps(Expr* expr, catk::io::FmtStream& fmout, std::unordered_set<Expr*>& dumped) {
+  if (dumped.count(expr)) return;
+  if (expr->dependencies().size() == 0) {
+    return;
+  }
+  for (auto& dep : expr->dependencies()) {
+    dump_deps(dep, fmout, dumped);
+  }
+  Symbol* sym = dynamic_cast<Symbol*>(expr);
+  if (!sym) return;
+  sym->dump(fmout);
+  fmout << " = ";
+  sym->rhs()->dump(fmout);
+  fmout << ";" << std::endl;
+  dumped.insert(sym);
+}
+
+void Context::dump(catk::io::FmtStream& fmout) const {
+  std::unordered_set<Expr*> dumped;
   if (!captures_.empty()) {
-    out << '[';
-    out << captures_[0];
-    caps.insert(captures_[0]);
-    for (int i = 1; i < captures_.size(); ++i) {
-      auto& c = captures_[i];
-      out << ',' << c->get_name();
-      caps.insert(c);
+    fmout << "[";
+    bool is_first = true;
+    for (auto& cap : captures_) {
+      if (!is_first) {
+        fmout << ',';
+      } else {
+        is_first = false;
+      }
+      cap->dump(fmout);
+      dumped.insert(cap);
     }
-    out << "] ";
+    fmout << "] ";
   }
   if (!params_.empty()) {
-    out << "(";
-    out << params_[0];
-    params.insert(params_[0]);
-    for (int i = 1; i < params_.size(); ++i) {
-      auto& c = params_[i];
-      out << ',' << c->get_name();
-      params.insert(c);
+    fmout << "(";
+    bool is_first = true;
+    for (auto& param : params_) {
+      if (!is_first) {
+        fmout << ',';
+      } else {
+        is_first = false;
+      }
+      param->dump(fmout);
+      dumped.insert(param);
     }
-    out << ") ";
+    fmout << ") ";
   }
-  out << "{\n";
-  for (auto& [name, sym] : accessible_) {
-    sym->dump(out);
+  fmout << "{" << std::endl;
+  fmout << catk::io::add_indent(2);
+  // for (auto& [name, sym] : accessible_) {
+  //   if (caps.count(sym)) continue;
+  //   if (params.count(sym)) continue;
+  //   sym->dump(fmout);
+  //   fmout << " = ";
+  //   sym->rhs()->dump(fmout);
+  //   fmout << ";" << std::endl;
+  // }
+  dump_deps(ret_expr_, fmout, dumped);
+  ret_expr_->dump(fmout);
+  fmout << ";" << std::endl;
+  fmout.flush();
+  fmout << catk::io::sub_indent(2);
+  fmout << "}";
+  fmout.flush();
+}
+
+std::vector<Expr*> Context::dependencies() const {
+  std::vector<Expr*> res;
+  res.resize(captures_.size());
+  for(size_t i = 0; i < captures_.size(); ++i) {
+    assert(captures_[i]);
+    res[i] = captures_[i];
   }
-  out << "}\n";
+  return res;
 }
 
 }

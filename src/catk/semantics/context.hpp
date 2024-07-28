@@ -6,6 +6,7 @@
 #include <catk/semantics/utils.hpp>
 #include <string_view>
 #include <unordered_map>
+#include <catk/io/fmt_stream.hpp>
 #include <catk/utils.hpp>
 
 namespace catk::semantics {
@@ -16,7 +17,6 @@ using ContextStmtASTs = avalon::mpl::TypeList<
 >;
 
 inline static bool is_context_stmt(catk::syntax::AST& stmt) {
-  rt_assert(stmt.is<catk::syntax::Statement>(), "must statement");
   return catk::syntax::is_in<ContextStmtASTs>(stmt);
 }
 
@@ -24,7 +24,7 @@ class Context : public Expr {
   std::unordered_map<std::string, Symbol*> accessible_;
   std::vector<Symbol*> params_;
   std::vector<Symbol*> captures_;
-  RetExpr* ret_expr_;
+  RetExpr* ret_expr_ {nullptr};
   static void set_current_context(Context* ctx);
 public:
   RetExpr* get_return() const;
@@ -36,7 +36,9 @@ public:
       return itr->second;
     }
   }
-  virtual void dump(std::ostream& out) const;
+  const auto& get_params() const { return params_; }
+  virtual void dump(catk::io::FmtStream& out) const;
+  virtual std::vector<Expr*> dependencies() const;
   static Context* from_ast(catk::syntax::AST& ast, const std::vector<catk::syntax::AST*>& params);
   
 };
