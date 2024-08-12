@@ -7,7 +7,7 @@
 #include <fmt/format.h>
 namespace catk::semantics {
 
-enum PrimaryTypes : std::uint32_t {
+enum PrimaryType : std::uint32_t {
   CATK_UINT8     = 0,
   CATK_UINT16    = 1,
   CATK_UINT32    = 2,
@@ -21,10 +21,10 @@ enum PrimaryTypes : std::uint32_t {
   CATK_STRING    = 10,
   CATK_PT_END
 };
-PrimaryTypes operator++(PrimaryTypes& x); 
-PrimaryTypes operator*(PrimaryTypes c); 
-PrimaryTypes begin(PrimaryTypes r); 
-PrimaryTypes end(PrimaryTypes r);
+PrimaryType operator++(PrimaryType& x); 
+PrimaryType operator*(PrimaryType c); 
+PrimaryType begin(PrimaryType r); 
+PrimaryType end(PrimaryType r);
 
 using PrimaryUnion = std::variant<
   std::uint8_t,

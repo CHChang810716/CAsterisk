@@ -11,9 +11,14 @@
 
 namespace catk::semantics {
 
-Context* Context::from_ast(catk::syntax::AST& ast, const std::vector<catk::syntax::AST*>& params) {
+Context* Context::from_ast(
+  catk::syntax::AST& ast, 
+  const std::vector<catk::syntax::AST*>& params, 
+  bool is_immediate
+) {
   // make context object and function
   Context& ctx = DB::get().alloc<Context>();
+  ctx.set_immediate(is_immediate);
   const struct ContextSwitchGuard {
     Context* last;
     ContextSwitchGuard(Context* curr) {
@@ -62,6 +67,7 @@ Context* Context::from_ast(catk::syntax::AST& ast, const std::vector<catk::synta
       auto*& sym = ctx.accessible_[name];
       if (sym) continue;
       sym = Symbol::from_ast(stmt);
+      ctx.locals_.push_back(sym);
       rt_assert(sym != nullptr, fmt::format("Symbol analyze failed: <{}> {}", stmt.name(), stmt.content()));
     } else if (stmt.is<syntax::RetStmt>()) {
       ctx.ret_expr_ = RetExpr::from_ast(stmt);
@@ -145,6 +151,37 @@ std::vector<Expr*> Context::dependencies() const {
     res[i] = captures_[i];
   }
   return res;
+}
+
+Expr* Context::clone() const {
+  return clone_impl<Context>();
+}
+
+Expr* Context::deep_clone(SymbolTable& st) const {
+  Context* ctx = &DB::get().alloc<Context>();
+  auto& symtab = ctx->accessible_;
+  for (auto& p : params_) {
+    Symbol* nsym = static_cast<Symbol*>(
+      p->deep_clone(symtab)
+    );
+    ctx->params_.push_back(nsym);
+    ctx->accessible_[nsym->get_name()] = nsym;
+  }
+  for (auto& c : captures_) {
+    ctx->captures_.push_back(c);
+    ctx->accessible_[c->get_name()] = c;
+  }
+  for (auto& l : locals_) {
+    Symbol* nsym = static_cast<Symbol*>(
+      l->deep_clone(symtab)
+    );
+    ctx->locals_.push_back(nsym);
+    ctx->accessible_[nsym->get_name()] = nsym;
+  } 
+  ctx->ret_expr_ = static_cast<RetExpr*>(
+    ret_expr_->deep_clone(symtab)
+  );
+  return ctx;
 }
 
 }

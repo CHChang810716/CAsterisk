@@ -31,8 +31,20 @@ public:
   void set_opnds(std::vector<Expr*>&& opnds) {
     opnds_ = std::move(opnds);
   }
+  template<class Visitor>
+  auto visit_func(Visitor&& vis) const {
+    return std::visit(
+      std::forward<Visitor>(vis),
+      func_.get_variant()
+    );
+  }
+  bool is_user_function_call() const;
+  Symbol* get_user_function() const;
+  const auto& get_operands() const { return opnds_; }
   virtual void dump(catk::io::FmtStream& out) const;
   virtual std::vector<Expr*> dependencies() const;
+  virtual Expr* clone() const;
+  virtual Expr* deep_clone(SymbolTable& st) const;
   static FunctionalExpr* from_ast(catk::syntax::AST& ast);
 };
 using RHSExpr = FunctionalExpr;

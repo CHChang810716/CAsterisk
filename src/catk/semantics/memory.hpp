@@ -2,22 +2,18 @@
 #include <vector>
 #include <type_traits>
 #include <catk/semantics/expr.hpp>
+#include <catk/memory/vector_based.hpp>
 
 namespace catk::semantics {
 
-class DB {
-  std::vector<Expr*> exprs_;
-public:
-  template<class T, class... ContrArgs>
-  T& alloc(ContrArgs&&... args) {
-    assert((std::is_base_of_v<Expr, T>));
-    exprs_.push_back(new T(std::forward<ContrArgs>(args)...));
-    return *static_cast<T*>(exprs_.back());
-  }
-  static DB& get() {
-    static DB db;
-    return db;
-  }
-};
+using DB = catk::memory::DB<Expr>;
+// FIXME: bad arch
+
+template<class T>
+Expr* Expr::clone_impl() const {
+  T* o = &DB::get().alloc<T>();    
+  *o = *static_cast<const T*>(this);
+  return o;
+}
 
 }

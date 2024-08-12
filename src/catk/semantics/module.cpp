@@ -24,4 +24,15 @@ void Module::dump(catk::io::FmtStream& out) const {
 std::vector<Expr*> Module::dependencies() const {
   return {};
 }
+
+Expr* Module::clone() const {
+  return clone_impl<Module>();
+}
+
+Expr* Module::deep_clone(SymbolTable& st) const {
+  Module* m = &DB::get().alloc<Module>();
+  m->context_ = static_cast<Context*>(context_->deep_clone(st));
+  return m;
+}
+
 }

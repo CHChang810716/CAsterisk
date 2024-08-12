@@ -4,6 +4,7 @@
 #include <catk/semantics/expr.hpp>
 #include <catk/semantics/utils.hpp>
 #include <catk/semantics/op.hpp>
+#include <catk/semantics/symbol.hpp>
 #include <variant>
 #include <iostream>
 
@@ -71,6 +72,9 @@ public:
   Function() = default;
   detail::FunctionProto& get_variant() { return *this; }
   const detail::FunctionProto& get_variant() const { return *this; }
+  bool is_user_function_call() const {
+    return std::holds_alternative<Symbol*>(get_variant());
+  }
   template<class Expr>
   static Function from_expr(catk::syntax::AST& func_ast) {
     // std::cout << func_ast.content() << std::endl;

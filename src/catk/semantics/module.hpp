@@ -14,8 +14,12 @@ public:
   Module(Context* ctx) 
   : context_(ctx)
   {}
+  Module() = default;
   virtual void dump(catk::io::FmtStream& out) const;
   virtual std::vector<Expr*> dependencies() const;
+  virtual Expr* clone() const;
+  virtual Expr* deep_clone(SymbolTable& st) const;
+  const Context* get_context() const { return context_; }
   static Module* from_ast(catk::syntax::AST& ast);
 };
 
