@@ -100,11 +100,6 @@ void print_dot( std::ostream& os, const Node& n )
    os << "}\n";
 }
 
-inline static auto& get_llvm_context() {
-   static thread_local llvm::LLVMContext context;
-   return (context);
-}
-
 // helper type for the visitor #4
 template<class... Ts>
 struct overloaded : Ts... { using Ts::operator()...; };

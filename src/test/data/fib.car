@@ -12,4 +12,4 @@ fib = fn(i) [fib_impl] {
 
 x = 10i64;
 y = fib(i = x);
-ret fib;
+ret y;

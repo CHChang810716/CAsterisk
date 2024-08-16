@@ -55,6 +55,7 @@ public:
   bool is_immediate() const {
     return is_immediate_;
   }
+  const auto& get_captures() const { return captures_; }
   virtual Expr* clone() const;
   virtual Expr* deep_clone(SymbolTable& st) const;
 };
