@@ -12,25 +12,17 @@ public:
   , builder_(std::make_unique<llvm::IRBuilder<>>(*get_llvm_context()))
   , curr_func_(nullptr)
   {}
-  llvm::Module* translate_module(const catk::semantics::Module* smod);
+  llvm::Module* translate_module(catk::semantics::Module* smod);
+  llvm::Type* translate_type(catk::Type* t);
 private:
-  void handle_module(const catk::semantics::Module* smod) {
-    curr_mod_ = std::make_unique<llvm::Module>("init_mod", *get_llvm_context()); // TODO: need a module name
-  }
-  void handle_context(const catk::semantics::Context* sctx) {
-    rt_assert(sctx->is_immediate(), "context is not immediate");
-    auto& ctx = *get_llvm_context();
-    // TODO: create struct and function
-    llvm::SmallVector<llvm::Value*, 4> caps;
-    for (auto& scap : sctx->get_captures()) {
-      // currently we only capture by reference
-      llvm::Value* v = translate_capture_by_ref(scap);
-      caps.push_back(v);
-    }
-    // make context struct type
-    // llvm::StructType::create()
-
-  }
+  void handle_module(catk::semantics::Module* smod);
+  void handle_context_def(catk::semantics::Context* sctx);
+  void handle_context_call(
+    llvm::StringRef name, 
+    catk::semantics::Context* callee, 
+    const std::vector<catk::semantics::Expr*>& opnds
+  );
+  void handle_ret(catk::semantics::Expr* sret);
   llvm::Value* translate_capture_by_ref(const catk::semantics::Expr* expr);
   inline static llvm::LLVMContext* get_llvm_context() {
      static thread_local llvm::LLVMContext context;
@@ -40,6 +32,8 @@ private:
   std::unique_ptr<llvm::IRBuilder<>> builder_;
   llvm::Function* curr_func_;
   std::unordered_map<catk::Type*, llvm::Type*> type_map_;
+  std::unordered_map<catk::semantics::Context*, llvm::Value*> slazy_ctx_struct_;
+  std::unordered_map<llvm::Value*, catk::semantics::Context*> struct_to_slazy_ctx_;
 };
 
 }
