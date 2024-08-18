@@ -36,12 +36,15 @@ llvm::Value* Driver::translate_context_def(catk::semantics::Context* sctx) {
   return ctx_struct;
 }
 
-void Driver::handle_context_call(
+llvm::Value* Driver::translate_context_call(
   llvm::StringRef name, 
   catk::semantics::Context* callee, 
-  const std::vector<catk::semantics::Expr*>& opnds
+  const std::vector<catk::semantics::Expr*>& s_opnds,
+  const llvm::SmallVector<llvm::Value*, 4>& opnds
 ) {
   catk::semantics::Context* sctx = nullptr;
+  auto call_site = builder_->GetInsertPoint();
+  llvm::Function* curr_func = curr_func_;
   if (callee->is_immediate()) {
     sctx = callee;
   } else {
@@ -50,7 +53,7 @@ void Driver::handle_context_call(
     rt_assert(ctx_struct, "context structure must not be null");
     // make function
     std::vector<catk::Type*> opnd_tys;
-    for (auto& opnd : opnds) {
+    for (auto& opnd : s_opnds) {
       opnd_tys.push_back(getType(opnd));
     }
     sctx = getTypedContext(callee, opnd_tys);
@@ -65,6 +68,7 @@ void Driver::handle_context_call(
     auto* fty = llvm::FunctionType::get(rty, param_tys, false);
     auto* func = llvm::cast<llvm::Function>(curr_mod_->getOrInsertFunction(name, fty).getCallee());
     curr_func_ = func;
+    call_site = builder_->GetInsertPoint();
     builder_->SetInsertPoint(&curr_func_->getEntryBlock());
     auto* ctx_struct_ty = ctx_struct->getType();
     auto get_ctx_struct_mem = [&](unsigned i) {
@@ -80,13 +84,17 @@ void Driver::handle_context_call(
       symbol_storage_[scap] = get_ctx_struct_mem(i); // pointer to value location
     }
   }
-  auto* old_sctx = curr_sctx_;
-  curr_sctx_ = sctx;
-  handle_ret(sctx->get_return());
-  curr_sctx_ = old_sctx;
+  llvm::Value* res = translate_value(sctx->get_return()->rhs());
   if (!callee->is_immediate()) {
-    curr_func_ = nullptr;
+    builder_->CreateRet(res);
+    auto* llvm_callee = curr_func_;
+    curr_func_ = curr_func;
+    // TODO: clean capture and local syms from symbol storage
+    builder_->SetInsertPoint(&*call_site);
+    // FIXME: first arg is context struct.
+    res = builder_->CreateCall(llvm_callee, opnds);
   }
+  return res;
 }
 
 void Driver::handle_ret(catk::semantics::RetExpr* sret) {

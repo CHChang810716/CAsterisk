@@ -9,6 +9,22 @@ using SemanticValues = avalon::mpl::TypeList<
   catk::semantics::Context
 >;
 
+struct ValueTransForFuncExprVis {
+  inline llvm::Value* operator()(catk::semantics::BinOp bop) const {
+  }
+  inline llvm::Value* operator()(catk::semantics::UnaryOp uop) const {
+  }
+  inline llvm::Value* operator()(catk::semantics::IfElseOp top) const {
+  }
+  inline llvm::Value* operator()(catk::semantics::Symbol* uf) const {
+    auto* callee_ctx = dynamic_cast<catk::semantics::Context*>(uf->rhs());
+    return driver.translate_context_call(uf->get_name(), callee_ctx, s_opnds, opnds);
+  }
+  const std::vector<catk::semantics::Expr*>& s_opnds;
+  const llvm::SmallVector<llvm::Value*, 4>& opnds;
+  Driver& driver;
+  llvm::IRBuilder<>& builder;
+};
 struct ValueTransVis {
   inline llvm::Value* operator()(catk::semantics::Constant* expr) const {
     return std::visit(overloaded {
@@ -31,13 +47,20 @@ struct ValueTransVis {
   inline llvm::Value* operator()(catk::semantics::Symbol* expr) const {
     llvm::Value*& storage = driver.symbol_storage_[expr];
     if (!storage) {
-      auto* sty = getType(expr);
-      auto* ty = driver.translate_type(sty);
-      storage = builder.CreateAlloca(ty);
+      // FIXME: if symbol is a context struct, need special handling.
+      llvm::Value* rhs = driver.translate_value(expr->rhs());
+      storage = builder.CreateAlloca(rhs->getType());
+      builder.CreateStore(rhs, storage);
     }
     return builder.CreateLoad(storage);
   }
   inline llvm::Value* operator()(catk::semantics::FunctionalExpr* expr) const {
+    llvm::SmallVector<llvm::Value*, 4> opnds;
+    for (auto& opnd : expr->get_operands()) {
+      opnds.push_back(driver.translate_value(opnd));
+    }
+    ValueTransForFuncExprVis vis{expr->get_operands(), opnds, driver, builder};
+    return expr->visit_func(vis);
   }
   inline llvm::Value* operator()(catk::semantics::Context* expr) const {
     return driver.translate_context_def(expr);
