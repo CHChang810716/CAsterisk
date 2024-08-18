@@ -41,10 +41,13 @@ Expr* Expr::from_ast(catk::syntax::AST& ast) {
     return Constant::from_ast(ast);
   } else if (ast.is<catk::syntax::StringLiteral>()) {
     rt_assert(false, "NYI: string");
+    return nullptr;
   } else if (ast.is<catk::syntax::ArrayLiteral>()) {
     rt_assert(false, "NYI: array");
+    return nullptr;
   } else {
     rt_assert(false, fmt::format("This AST has no semantics: <{}> {}", ast.name(), ast.content()));
+    return nullptr;
   }
 }
 

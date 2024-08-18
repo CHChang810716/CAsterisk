@@ -37,7 +37,7 @@ std::vector<Expr*> Constant::dependencies() const {
 }
 
 PrimaryType Constant::get_type() const {
-  std::visit(overloaded {
+  return std::visit(overloaded {
     [&](std::uint8_t v)       { return CATK_UINT8;  },
     [&](std::uint16_t v)      { return CATK_UINT16; },
     [&](std::uint32_t v)      { return CATK_UINT32; },

@@ -12,6 +12,7 @@ public:
   }
   PrimaryType get_type() const;
   auto& get_storage() { return value_; }
+  const auto& get_storage() const { return value_; }
   virtual void dump(catk::io::FmtStream& out) const;
   virtual std::vector<Expr*> dependencies() const;
   static Constant* from_ast(catk::syntax::AST& ast);

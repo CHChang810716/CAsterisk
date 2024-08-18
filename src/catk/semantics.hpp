@@ -3,3 +3,4 @@
 #include <catk/semantics/context.hpp>
 #include <catk/semantics/module.hpp>
 #include <catk/semantics/functional_expr.hpp>
+#include <catk/semantics/constant.hpp>

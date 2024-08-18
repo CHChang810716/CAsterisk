@@ -40,6 +40,7 @@ Context* Context::from_ast(
       auto& cl_ast = *pcl_ast;
       for (auto& pcitem : cl_ast.children) {
         Symbol* csym = guard.last->accessible_.at(pcitem->string());
+        csym = &DB::get().alloc<Symbol>(csym, csym->get_name());
         ctx.accessible_[csym->get_name()] = csym;
         ctx.captures_.push_back(csym);
       }

@@ -23,6 +23,7 @@ template<class Expr>
 struct FunctionFromExprImpl {
   static FunctionProto make(catk::syntax::AST& func_ast) {
     rt_assert(false, "unknown function expr: " + func_ast.content());
+    return {};
   }
 };
 

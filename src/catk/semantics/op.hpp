@@ -6,6 +6,7 @@
 #include <catk/syntax/ast.hpp>
 #include <avalon/debug_id.hpp>
 #include <string>
+#include <catk/utils.hpp>
 
 namespace catk::semantics {
 
@@ -63,6 +64,10 @@ namespace std {
       case BOP_LE: return "<=";
       case BOP_GE: return ">=";
       case BOP_NE: return "!=";
+      default: {
+        rt_assert(false, "BUG: never be here");
+        return "";
+      }
     }
   }
   inline static std::string to_string(catk::semantics::UnaryOp uop) {
@@ -74,6 +79,10 @@ namespace std {
       case UOP_DEREF: return "*";
       case UOP_NOT: return "!";
       case UOP_ADDROF: return "&";
+      default: {
+        rt_assert(false, "BUG: never be here");
+        return "";
+      }
     }
   }
 }

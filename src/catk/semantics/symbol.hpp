@@ -7,6 +7,11 @@ class Symbol : public Expr {
   std::string name_ {""};
   Expr* rhs_ {nullptr};
 public:
+  Symbol() = default;
+  explicit Symbol(Expr* rhs, const char* name = "")
+  : name_(name)
+  , rhs_(rhs)
+  {}
   virtual const char* get_name() const {
     return name_.c_str();
   }
