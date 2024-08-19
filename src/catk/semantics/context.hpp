@@ -43,7 +43,7 @@ public:
       return itr->second;
     }
   }
-  const auto& get_params() const { return params_; }
+  const auto& params() const { return params_; }
   virtual void dump(catk::io::FmtStream& out) const;
   virtual std::vector<Expr*> dependencies() const;
   static Context* from_ast(
@@ -55,7 +55,7 @@ public:
   bool is_immediate() const {
     return is_immediate_;
   }
-  const auto& get_captures() const { return captures_; }
+  const auto& captures() const { return captures_; }
   virtual Expr* clone() const;
   virtual Expr* deep_clone(SymbolTable& st) const;
 };

@@ -33,7 +33,7 @@ private:
 
 template<class Visitor> 
 struct VirtVisitImpl<avalon::mpl::TypeList<>, Visitor&> {
-  VirtVisitImpl(Visistor& vis)
+  VirtVisitImpl(Visitor& vis)
   : visitor_(vis)
   {}
   template<class T>

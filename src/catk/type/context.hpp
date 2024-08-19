@@ -14,18 +14,11 @@ struct Context {
     }
     return ty;
   }
-  Type* getTypeById(const TypeId& id) {
-    return internal_[id];
-  }
-  void setTypeById(const TypeId& id, Type* t) {
-    internal_[id] = t;
-  }
   static Context& get() {
     static Context ctx;
     return ctx;
   }
 private:
-  // std::unordered_map<FuncSig, Type*>
   std::unordered_map<TypeId, Type*> internal_;
 };
   

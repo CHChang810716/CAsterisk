@@ -3,21 +3,27 @@
 namespace catk::behavior::gen_llvm {
 
 using SemanticValues = avalon::mpl::TypeList<
-  catk::semantics::Constant,
-  catk::semantics::Symbol,
-  catk::semantics::FunctionalExpr,
-  catk::semantics::Context
+  const catk::semantics::Constant,
+  const catk::semantics::Symbol,
+  const catk::semantics::FunctionalExpr,
+  const catk::semantics::Context
 >;
 
 struct ValueTransForFuncExprVis {
   inline llvm::Value* operator()(catk::semantics::BinOp bop) const {
+    rt_assert(false, "NYI");
+    return nullptr;
   }
   inline llvm::Value* operator()(catk::semantics::UnaryOp uop) const {
+    rt_assert(false, "NYI");
+    return nullptr;
   }
   inline llvm::Value* operator()(catk::semantics::IfElseOp top) const {
+    rt_assert(false, "NYI");
+    return nullptr;
   }
   inline llvm::Value* operator()(catk::semantics::Symbol* uf) const {
-    auto* callee_ctx = dynamic_cast<catk::semantics::Context*>(uf->rhs());
+    auto* callee_ctx = catk::getType(uf)->get_lazy_context();
     return driver.translate_context_call(uf->get_name(), callee_ctx, s_opnds, opnds);
   }
   const std::vector<catk::semantics::Expr*>& s_opnds;
@@ -26,7 +32,7 @@ struct ValueTransForFuncExprVis {
   llvm::IRBuilder<>& builder;
 };
 struct ValueTransVis {
-  inline llvm::Value* operator()(catk::semantics::Constant* expr) const {
+  inline llvm::Value* operator()(const catk::semantics::Constant* expr) const {
     return std::visit(overloaded {
       [&](std::uint8_t v)       -> llvm::Constant* { return builder.getInt8(v); },
       [&](std::uint16_t v)      -> llvm::Constant* { return builder.getInt16(v); },
@@ -44,7 +50,7 @@ struct ValueTransVis {
       },
     }, expr->get_storage());
   }
-  inline llvm::Value* operator()(catk::semantics::Symbol* expr) const {
+  inline llvm::Value* operator()(const catk::semantics::Symbol* expr) const {
     llvm::Value*& storage = driver.symbol_storage_[expr];
     if (!storage) {
       // FIXME: if symbol is a context struct, need special handling.
@@ -52,9 +58,9 @@ struct ValueTransVis {
       storage = builder.CreateAlloca(rhs->getType());
       builder.CreateStore(rhs, storage);
     }
-    return builder.CreateLoad(storage);
+    return builder.CreateLoad(storage->getType()->getPointerElementType(), storage);
   }
-  inline llvm::Value* operator()(catk::semantics::FunctionalExpr* expr) const {
+  inline llvm::Value* operator()(const catk::semantics::FunctionalExpr* expr) const {
     llvm::SmallVector<llvm::Value*, 4> opnds;
     for (auto& opnd : expr->get_operands()) {
       opnds.push_back(driver.translate_value(opnd));
@@ -62,7 +68,7 @@ struct ValueTransVis {
     ValueTransForFuncExprVis vis{expr->get_operands(), opnds, driver, builder};
     return expr->visit_func(vis);
   }
-  inline llvm::Value* operator()(catk::semantics::Context* expr) const {
+  inline llvm::Value* operator()(const catk::semantics::Context* expr) const {
     return driver.translate_context_def(expr);
   }
   inline llvm::Value* operator()() const {
@@ -73,7 +79,7 @@ struct ValueTransVis {
   llvm::IRBuilder<>& builder;
 };
 
-llvm::Value* Driver::translate_value(catk::semantics::Expr* expr) {
+llvm::Value* Driver::translate_value(const catk::semantics::Expr* expr) {
   ValueTransVis vis{*this, *this->builder_};
   return avalon::mpl::virt_visit<SemanticValues>(vis, expr);
 }

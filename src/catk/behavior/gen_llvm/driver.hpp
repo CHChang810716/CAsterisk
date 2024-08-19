@@ -14,20 +14,18 @@ public:
   , builder_(std::make_unique<llvm::IRBuilder<>>(*get_llvm_context()))
   , curr_func_(nullptr)
   {}
-  llvm::Module* translate_module(catk::semantics::Module* smod);
-  llvm::Type* translate_type(catk::Type* t);
-  llvm::Value* translate_value(catk::semantics::Expr* expr);
+  llvm::Module* translate_module(const catk::semantics::Module* smod);
+  llvm::Type* translate_type(const catk::Type* t);
+  llvm::Value* translate_value(const catk::semantics::Expr* expr);
+  llvm::Value* translate_context_def(const catk::semantics::Context* sctx);
 private:
-  llvm::Value* translate_context_def(catk::semantics::Context* sctx);
-  void handle_module(catk::semantics::Module* smod);
-  // void handle_context_def(catk::semantics::Context* sctx);
+  void handle_module(const catk::semantics::Module* smod);
   llvm::Value* translate_context_call(
     llvm::StringRef name, 
-    catk::semantics::Context* callee, 
+    const catk::semantics::Context* callee, 
     const std::vector<catk::semantics::Expr*>& s_opnds,
     const llvm::SmallVector<llvm::Value*, 4>& opnds
   );
-  void handle_ret(catk::semantics::RetExpr* sret);
   inline static llvm::LLVMContext* get_llvm_context() {
      static thread_local llvm::LLVMContext context;
      return &context;
@@ -35,10 +33,10 @@ private:
   std::unique_ptr<llvm::Module> curr_mod_;
   std::unique_ptr<llvm::IRBuilder<>> builder_;
   llvm::Function* curr_func_;
-  std::unordered_map<catk::Type*, llvm::Type*> type_map_;
-  std::unordered_map<catk::semantics::Context*, llvm::Value*> slazy_ctx_struct_;
-  std::unordered_map<llvm::Value*, catk::semantics::Context*> struct_to_slazy_ctx_;
-  std::unordered_map<catk::semantics::Symbol*, llvm::Value*> symbol_storage_;
+  std::unordered_map<const catk::Type*, const llvm::Type*> type_map_;
+  std::unordered_map<const catk::semantics::Context*, llvm::Value*> slazy_ctx_struct_;
+  std::unordered_map<llvm::Value*, const catk::semantics::Context*> struct_to_slazy_ctx_;
+  std::unordered_map<const catk::semantics::Symbol*, llvm::Value*> symbol_storage_;
 };
 
 }

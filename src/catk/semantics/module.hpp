@@ -20,6 +20,7 @@ public:
   virtual Expr* clone() const;
   virtual Expr* deep_clone(SymbolTable& st) const;
   Context* get_context() { return context_; }
+  const Context* get_context() const { return context_; }
   static Module* from_ast(catk::syntax::AST& ast);
 };
 

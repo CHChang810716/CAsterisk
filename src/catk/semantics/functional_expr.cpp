@@ -18,7 +18,7 @@ struct FunctionalExprMaker : public detail::AstVisitor<FExpr>{
       auto passed_param_names = catk::syntax::FCallExpr::opnd_labels(ast);
       Symbol*& ufunc = std::get<Symbol*>(func.get_variant());
       Context* uf_ctx = dynamic_cast<Context*>(ufunc->rhs());
-      auto& params = uf_ctx->get_params();
+      auto& params = uf_ctx->params();
       rt_assert(params.size() == passed_param_names.size(), "not yet support default parameter"
         " so the passed and defined parameter should be same");
       std::unordered_map<std::string_view, int> index;
