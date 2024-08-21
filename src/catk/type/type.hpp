@@ -46,6 +46,23 @@ struct Type {
   bool is_struct() const { return std::holds_alternative<StructType>(content_); }
   bool is_lazy_context() const { return std::holds_alternative<LazyContext>(content_); }
   bool is_undecided() const { return is_undecided_; }
+  bool is_unsigned_int() const {
+    rt_assert(is_primary(), "must be primary");
+    return std::get<PrimaryType>(content_) < catk::semantics::CATK_INT8;
+  }
+  bool is_int() const {
+    rt_assert(is_primary(), "must be primary");
+    return std::get<PrimaryType>(content_) < catk::semantics::CATK_FLOAT32;
+  }
+  bool is_signed_int() const {
+    rt_assert(is_primary(), "must be primary");
+    return is_int() && !is_unsigned_int();
+  }
+  bool is_float() const {
+    rt_assert(is_primary(), "must be primary");
+    auto& v = std::get<PrimaryType>(content_);
+    return v == catk::semantics::CATK_FLOAT32 || v == catk::semantics::CATK_FLOAT32;
+  }
   Type* get_pointer_elem_ty() const {
     rt_assert(is_pointer(), "must be pointer");
     return std::get<PointerElem>(content_);
