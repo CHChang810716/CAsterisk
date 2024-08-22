@@ -1,5 +1,6 @@
 #include <catk/behavior/gen_llvm/driver.hpp>
 #include <avalon/mpl/virt_visit.hpp>
+#include <llvm/Transforms/Utils/BasicBlockUtils.h>
 namespace catk::behavior::gen_llvm {
 
 using SemanticValues = avalon::mpl::TypeList<
@@ -23,11 +24,11 @@ struct ValueTransForFuncExprVis {
     (opnd0_flag & lhsflag) && \
     (opnd1_flag & rhsflag) \
   ) { \
-    auto new_opnds = type_legalizer(); \ 
+    auto new_opnds = type_legalizer(opnds); \ 
     return handler(new_opnds[0], new_opnds[1]); \
   }
   // TODO: typeing, implict cast
-  auto tl_match_ret_type() const {
+  auto tl_match_ret_type(const llvm::SmallVector<llvm::Value*, 4>& opnds) const {
     auto new_opnds = opnds;
     for (unsigned i = 0; i < new_opnds.size(); ++i) {
       auto& v = new_opnds[i];
@@ -50,7 +51,7 @@ struct ValueTransForFuncExprVis {
     return new_opnds;
   }
   
-  auto tl_match_ret_bits() const {
+  auto tl_match_ret_bits(const llvm::SmallVector<llvm::Value*, 4>& opnds) const {
     auto new_opnds = opnds;
     for (unsigned i = 0; i < new_opnds.size(); ++i) {
       auto& v = new_opnds[i];
@@ -70,7 +71,7 @@ struct ValueTransForFuncExprVis {
     return new_opnds;
   }
 
-  auto tl_check_same() const {
+  auto tl_check_same(const llvm::SmallVector<llvm::Value*, 4>& opnds) const {
     for (unsigned i = 1; i < s_opnds.size(); ++i) {
       rt_assert(catk::getType(s_opnds[i]) == catk::getType(s_opnds[i - 1]), 
         fmt::format("type not match: ({}), ({})", 
@@ -92,6 +93,8 @@ struct ValueTransForFuncExprVis {
   }
   inline llvm::Value* operator()(catk::semantics::BinOp bop) const {
     using namespace catk::semantics;
+    auto opnds = translate_opnds();
+    rt_assert(opnds.size() == 2, "binary operator only accept 2 operands");
     auto opnd0_flag = resolve_flag(opnds[0], s_opnds[0]);
     auto opnd1_flag = resolve_flag(opnds[1], s_opnds[1]);
     BOP_HANDLE(SI|UI, SI|UI, BOP_ADD, tl_match_ret_type, builder.CreateAdd);
@@ -132,21 +135,62 @@ struct ValueTransForFuncExprVis {
     );
   }
   inline llvm::Value* operator()(catk::semantics::UnaryOp uop) const {
-    rt_assert(false, "NYI");
-    return nullptr;
+    using namespace catk::semantics;
+    auto opnds = translate_opnds();
+    rt_assert(opnds.size() == 1, "unary operator only accept 1 operands");
+    auto& opnd = opnds[0];
+    auto& s_opnd = s_opnds[0];
+    switch (uop) {
+    case UOP_ADD:
+      return opnd;
+    case UOP_INV:
+      if (opnd->getType()->isIntegerTy())
+        return builder.CreateNot(opnd);
+      else
+        rt_assert(false, "inverse operator translate failed: " + s_opnd->dump_str());
+    case UOP_NOT:
+      if (opnd->getType()->isIntegerTy())
+        return builder.CreateICmpEQ(opnd, builder.getIntN(0, opnd->getType()->getIntegerBitWidth()));
+      else
+        rt_assert(false, "inverse operator translate failed: " + s_opnd->dump_str());
+    case UOP_DEREF:
+      return builder.CreateLoad(opnd->getType(), opnd);
+    case UOP_ADDROF:
+      return llvm::cast<llvm::LoadInst>(opnd)->getPointerOperand();
+    }
   }
   inline llvm::Value* operator()(catk::semantics::IfElseOp top) const {
-    rt_assert(false, "NYI");
-    return nullptr;
+    rt_assert(s_opnds.size() == 3, "if else should have 3 operands");
+    auto* PRes = builder.CreateAlloca(res_type);
+    auto* curPt = &*builder.GetInsertPoint();
+    llvm::Instruction* ThenPt;
+    llvm::Instruction* ElsePt;
+    auto* cond = driver.translate_value(s_opnds[0]);
+    llvm::SplitBlockAndInsertIfThenElse(cond, curPt, &ThenPt, &ElsePt);
+    builder.SetInsertPoint(ThenPt);
+    auto* v0 = driver.translate_value(s_opnds[1]);
+    builder.CreateStore(v0, PRes);
+    builder.SetInsertPoint(ElsePt);
+    auto* v1 = driver.translate_value(s_opnds[2]);
+    builder.CreateStore(v1, PRes);
+    builder.SetInsertPoint(curPt);
+    return builder.CreateLoad(PRes);
   }
   inline llvm::Value* operator()(catk::semantics::Symbol* uf) const {
+    auto opnds = translate_opnds();
     auto* callee_ctx = catk::getType(uf)->get_lazy_context();
     return driver.translate_context_call(uf->get_name(), callee_ctx, s_opnds, opnds);
+  }
+  inline llvm::SmallVector<llvm::Value*, 4> translate_opnds() const {
+    llvm::SmallVector<llvm::Value*, 4> opnds;
+    for (auto& opnd : s_opnds) {
+      opnds.push_back(driver.translate_value(opnd));
+    }
+    return opnds;
   }
   const catk::Type* s_res_type;
   llvm::Type* res_type;
   const std::vector<catk::semantics::Expr*>& s_opnds;
-  const llvm::SmallVector<llvm::Value*, 4>& opnds;
   Driver& driver;
   llvm::IRBuilder<>& builder;
 };
@@ -180,14 +224,10 @@ struct ValueTransVis {
     return builder.CreateLoad(storage->getType()->getPointerElementType(), storage);
   }
   inline llvm::Value* operator()(const catk::semantics::FunctionalExpr* expr) const {
-    llvm::SmallVector<llvm::Value*, 4> opnds;
-    for (auto& opnd : expr->get_operands()) {
-      opnds.push_back(driver.translate_value(opnd));
-    }
     auto* stype = catk::getType(expr);
     ValueTransForFuncExprVis vis{
       stype, driver.translate_type(stype), expr->get_operands(), 
-      opnds, driver, builder
+      driver, builder
     };
     return expr->visit_func(vis);
   }
