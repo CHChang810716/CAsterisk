@@ -9,6 +9,6 @@ namespace behavior {
 class Unit; 
 } // namespace behavior 
 
-catk::behavior::Unit* make_unit(const catk::semantics::Module* ctx);
+catk::behavior::Unit* get_unit_behavior(const catk::semantics::Module* ctx);
 
 } // namespace catk

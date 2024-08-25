@@ -13,9 +13,9 @@
 
 namespace catk {
 
-  using SCtx = catk::semantics::Context;
+using SCtx = catk::semantics::Context;
 static thread_local std::unordered_map<const catk::semantics::Expr*, Type*> expr_type;
-static thread_local std::unordered_map<const SCtx*, SCtx*> def_to_inst;
+static thread_local std::unordered_map<type::TypeId, SCtx*> def_to_inst;
 
 namespace detail {
 using SemanticLeafTypes = avalon::mpl::TypeList<
@@ -62,11 +62,11 @@ struct GetTypeFuncVisit {
   }
   inline Type* operator()(catk::semantics::Symbol* uf) const {
     const catk::semantics::Context* lazy_ctx = nullptr;
-    Type* lazy_ctx_type = getType(uf);
+    Type* lazy_ctx_type = get_type(uf);
     lazy_ctx = lazy_ctx_type->get_lazy_context();
     rt_assert(lazy_ctx, "right hand side of user function symbol is not context: " + uf->dump_str());
-    auto* imm_ctx = catk::getTypedContext(lazy_ctx, opnd_tys_);
-    return getType(imm_ctx);
+    auto* imm_ctx = catk::get_typed_context(lazy_ctx, opnd_tys_);
+    return get_type(imm_ctx);
   }
 
 private:
@@ -80,24 +80,24 @@ struct GetTypeVisit {
   }
   inline Type* operator()(const catk::semantics::Symbol* expr) const {
     if (expr->rhs())
-      return getType(expr->rhs());
+      return get_type(expr->rhs());
     else
       return Type::get_undecided();
   }
   inline Type* operator()(const catk::semantics::RetExpr* expr) const {
-    return getType(expr->rhs());
+    return get_type(expr->rhs());
   }
   inline Type* operator()(const catk::semantics::FunctionalExpr* expr) const {
     std::vector<Type*> opnd_tys;
     for(auto& opnd : expr->get_operands()) {
-      opnd_tys.push_back(getType(opnd));
+      opnd_tys.push_back(get_type(opnd));
     } 
     GetTypeFuncVisit fv(opnd_tys);
     return expr->visit_func(fv);
   }
   inline Type* operator()(const catk::semantics::Context* expr) const {
     if (expr->is_immediate())
-      return getType(expr->get_return());
+      return get_type(expr->get_return());
     return type::Context::get().getType(expr);
   }
   inline Type* operator()() const {
@@ -108,9 +108,10 @@ struct GetTypeVisit {
 
 }
 
-const catk::semantics::Context* getTypedContext(const catk::semantics::Context* ctx, const std::vector<Type*>& opnd_tys) {
+const catk::semantics::Context* get_typed_context(const catk::semantics::Context* ctx, const std::vector<Type*>& opnd_tys) {
   rt_assert(!ctx->is_immediate(), "BUG: must not be immediate");
-  auto& res = def_to_inst[ctx];
+  auto id = type::serialize_type_id(ctx, opnd_tys);
+  auto& res = def_to_inst[id];
   if (!res) {
     auto* imm_ctx = static_cast<catk::semantics::Context*>(ctx->Expr::deep_clone({}));
     auto&& params = imm_ctx->params();
@@ -124,7 +125,7 @@ const catk::semantics::Context* getTypedContext(const catk::semantics::Context* 
   return res;
 }
 
-Type* getType(const catk::semantics::Expr* expr) {
+Type* get_type(const catk::semantics::Expr* expr) {
   using namespace catk::semantics;
   auto& type = expr_type[expr];
   if (!type) {
@@ -133,6 +134,11 @@ Type* getType(const catk::semantics::Expr* expr) {
       catk::detail::SemanticLeafTypes, 
       catk::detail::GetTypeVisit
     >(expr);
+    rt_assert(type != nullptr, "should not be null");
+    if (type == Type::get_undecided()) {
+      type = nullptr;
+      return Type::get_undecided();
+    }
   }
   return type;
 }

@@ -182,6 +182,7 @@ Expr* Context::deep_clone(SymbolTable& st) const {
   ctx->ret_expr_ = static_cast<RetExpr*>(
     ret_expr_->deep_clone(symtab)
   );
+  ctx->is_immediate_ = is_immediate_;
   return ctx;
 }
 

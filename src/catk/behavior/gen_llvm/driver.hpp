@@ -3,11 +3,20 @@
 #include <llvm/IR/Module.h>
 #include <catk/semantics.hpp>
 #include <catk/type.hpp>
+
+#if defined(UNIT_TEST)
+class CatkUnitTest;
+#endif
+
 namespace catk::behavior::gen_llvm {
 
 class Driver {
   friend struct ValueTransVis;
   friend struct ValueTransForFuncExprVis;
+  friend struct TypeTransVis;
+#if defined(UNIT_TEST)
+  friend ::CatkUnitTest;
+#endif
 public:
   Driver()
   : curr_mod_(nullptr)
@@ -18,7 +27,9 @@ public:
   llvm::Type* translate_type(const catk::Type* t);
   llvm::Value* translate_value(const catk::semantics::Expr* expr);
   llvm::Value* translate_context_def(const catk::semantics::Context* sctx);
+  
 private:
+  llvm::Function* create_function(llvm::FunctionType* ft, llvm::StringRef name);
   void handle_module(const catk::semantics::Module* smod);
   llvm::Value* translate_context_call(
     llvm::StringRef name, 

@@ -48,14 +48,14 @@ private:
 
 template<class TypeList, class Visitor, class Target>
 inline static decltype(auto) virt_visit(Visitor&& visitor, Target* target) {
-  static detail::VirtVisitImpl<TypeList, Visitor&> impl{visitor};
+  detail::VirtVisitImpl<TypeList, Visitor&> impl{visitor};
   return impl.visit(target);
 }
 
 template<class TypeList, class Visitor, class Target>
 inline static decltype(auto) virt_visit(Target* target) {
   Visitor visitor;
-  static detail::VirtVisitImpl<TypeList, Visitor&> impl{visitor};
+  detail::VirtVisitImpl<TypeList, Visitor&> impl{visitor};
   return impl.visit(target);
 }
 

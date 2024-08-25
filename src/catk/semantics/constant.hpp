@@ -6,6 +6,10 @@ namespace catk::semantics {
 class Constant : public Expr {
   PrimaryUnion value_ {0};
 public:
+  Constant() = default;
+  explicit Constant(PrimaryUnion&& v)
+  : value_(std::move(v))
+  {}
   template<class T>
   constexpr T& get() const {
     return std::get<T>(value_);

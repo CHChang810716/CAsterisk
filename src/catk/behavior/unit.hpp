@@ -12,10 +12,10 @@ public:
   explicit Unit(T&& handle)
   : handle_(std::forward<T>(handle))
   {}
-private:
-  llvm::Module* get_llvm_unit() {
+  llvm::Module* as_llvm_module() {
     return std::get<llvm::Module*>(handle_);
   }
+private:
   UnitHandle handle_;
 }; 
   

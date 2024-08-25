@@ -14,7 +14,7 @@ namespace catk::semantics {
 Module* Module::from_ast(catk::syntax::AST& ast) {
   rt_assert(ast.is_root(), "A module ast should be root ast");
   // rt_assert(ast.children.size() == 1, "Module should include one context children.");
-  return &DB::get().alloc<Module>(Context::from_ast(ast, {}));
+  return &DB::get().alloc<Module>(Context::from_ast(ast, {}, false));
 }
 
 void Module::dump(catk::io::FmtStream& out) const {

@@ -18,5 +18,6 @@ TEST(type_test, file_fib) {
     catk::syntax::ASTSelector
   >(in);
   auto* mod = catk::semantics::Module::from_ast(*root);
-  EXPECT_EQ(catk::getType(mod->get_context()->get_symbol("y"))->get_id(), "7_pmt");
+  EXPECT_EQ(catk::get_type(mod->get_context()->get_symbol("y"))->get_id(), "7_pmt");
+  EXPECT_EQ(catk::get_type(mod->get_context()->get_symbol("y"))->get_id(), "7_pmt");
 }

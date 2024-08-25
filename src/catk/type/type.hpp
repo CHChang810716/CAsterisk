@@ -74,6 +74,10 @@ struct Type {
   const TypeId& get_id() const {
     return id_;
   }
+  template<class Vis>
+  auto visit(Vis&& vis) const {
+    return std::visit(std::forward<Vis>(vis), content_);
+  }
   static Type* get_undecided() {
     static Type ut(PrimaryType::CATK_PT_END, "(undecided)", false, true);
     return &ut;

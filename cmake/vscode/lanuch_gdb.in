@@ -10,6 +10,12 @@
             "console": "externalTerminal",
             "MIMode": "gdb",
             "miDebuggerPath": "@AKT_DEBUGGER@",
+            "sourceFileMap": {
+                "@CMAKE_SOURCE_DIR@": {
+                    "editorPath": "@CMAKE_SOURCE_DIR@",
+                    "useForBreakpoints": "true"
+                }
+            },
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",

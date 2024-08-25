@@ -6,3 +6,10 @@ hunter_config(
         WITH_PROTOBUF=OFF
         WITH_JASPER=OFF
 )
+
+hunter_config(
+    LLVM
+    VERSION "${HUNTER_LLVM_VERSION}"
+    CMAKE_ARGS 
+        LLVM_ENABLE_DUMP=ON
+)

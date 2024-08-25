@@ -9,14 +9,7 @@ llvm::Value* Driver::translate_context_def(const catk::semantics::Context* sctx)
   if (res) return res;
   auto& ctx = *get_llvm_context();
   // make context struct
-  llvm::SmallVector<llvm::Type*, 4> ctx_struct_mem_tys;
-  auto& scaps = sctx->captures();
-  for (auto& scap : scaps) {
-    // TODO: currently we only capture by reference
-    auto* scap_tar = dynamic_cast<catk::semantics::Symbol*>(scap->rhs());
-    ctx_struct_mem_tys.push_back(symbol_storage_[scap_tar]->getType()->getPointerTo());
-  }
-  auto* ctx_struct_ty = llvm::StructType::create(ctx_struct_mem_tys);
+  auto* ctx_struct_ty = translate_type(catk::get_type(sctx));
   auto* ctx_struct = builder_->CreateAlloca(ctx_struct_ty);
   auto get_ctx_struct_mem = [&](unsigned i) {
     auto* rt = ctx_struct_ty->getStructElementType(i);
@@ -25,6 +18,7 @@ llvm::Value* Driver::translate_context_def(const catk::semantics::Context* sctx)
       builder_->getInt8(i)
     });
   };
+  auto& scaps = sctx->captures();
   for (unsigned i = 0; i < scaps.size(); ++i) {
     auto& scap = scaps[i];
     auto* scap_tar = dynamic_cast<catk::semantics::Symbol*>(scap->rhs());
@@ -50,24 +44,22 @@ llvm::Value* Driver::translate_context_call(
   } else {
     rt_assert(!callee->is_immediate(), "callee context should be lazy");
     llvm::Value* ctx_struct = slazy_ctx_struct_[callee];
-    rt_assert(ctx_struct, "context structure must not be null");
     // make function
     std::vector<catk::Type*> opnd_tys;
     for (auto& opnd : s_opnds) {
-      opnd_tys.push_back(getType(opnd));
+      opnd_tys.push_back(get_type(opnd));
     }
-    sctx = getTypedContext(callee, opnd_tys);
-    auto* sret_ty = catk::getType(sctx);
+    sctx = get_typed_context(callee, opnd_tys);
+    auto* sret_ty = catk::get_type(sctx);
     llvm::Type* rty = translate_type(sret_ty);
     llvm::SmallVector<llvm::Type*, 4> param_tys;
     param_tys.push_back(ctx_struct->getType()); // for captured context
     for (auto& scparam : sctx->params()) {
-      auto* spty = catk::getType(scparam);
+      auto* spty = catk::get_type(scparam);
       param_tys.push_back(translate_type(spty));
     }
     auto* fty = llvm::FunctionType::get(rty, param_tys, false);
-    auto* func = llvm::cast<llvm::Function>(curr_mod_->getOrInsertFunction(name, fty).getCallee());
-    curr_func_ = func;
+    auto* func = create_function(fty, name);
     call_site = builder_->GetInsertPoint();
     builder_->SetInsertPoint(&curr_func_->getEntryBlock());
     auto* ctx_struct_ty = ctx_struct->getType();

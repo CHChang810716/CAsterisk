@@ -24,7 +24,7 @@ struct ValueTransForFuncExprVis {
     (opnd0_flag & lhsflag) && \
     (opnd1_flag & rhsflag) \
   ) { \
-    auto new_opnds = type_legalizer(opnds); \ 
+    auto new_opnds = type_legalizer(opnds); \
     return handler(new_opnds[0], new_opnds[1]); \
   }
   // TODO: typeing, implict cast
@@ -56,7 +56,7 @@ struct ValueTransForFuncExprVis {
     for (unsigned i = 0; i < new_opnds.size(); ++i) {
       auto& v = new_opnds[i];
       if (v->getType()->getIntegerBitWidth() < res_type->getIntegerBitWidth()) {
-        auto* stype = catk::getType(s_opnds[i]);
+        auto* stype = catk::get_type(s_opnds[i]);
         if (stype->is_signed_int()) {
           v = builder.CreateSExt(v, res_type);
           continue;
@@ -73,7 +73,7 @@ struct ValueTransForFuncExprVis {
 
   auto tl_check_same(const llvm::SmallVector<llvm::Value*, 4>& opnds) const {
     for (unsigned i = 1; i < s_opnds.size(); ++i) {
-      rt_assert(catk::getType(s_opnds[i]) == catk::getType(s_opnds[i - 1]), 
+      rt_assert(catk::get_type(s_opnds[i]) == catk::get_type(s_opnds[i - 1]), 
         fmt::format("type not match: ({}), ({})", 
           s_opnds[i - 1]->dump_str(), s_opnds[i]->dump_str()
         )
@@ -83,7 +83,7 @@ struct ValueTransForFuncExprVis {
   }
 
   std::uint8_t resolve_flag(const llvm::Value* v, const catk::semantics::Expr* sv) const {
-    auto* semty = catk::getType(sv);
+    auto* semty = catk::get_type(sv);
     if (!semty->is_primary()) return NP;
     if (semty->is_float()) return FP;
     if (semty->is_signed_int()) return SI;
@@ -133,6 +133,7 @@ struct ValueTransForFuncExprVis {
         s_opnds[0]->dump_str(), s_opnds[1]->dump_str()
       )
     );
+    return nullptr;
   }
   inline llvm::Value* operator()(catk::semantics::UnaryOp uop) const {
     using namespace catk::semantics;
@@ -157,6 +158,9 @@ struct ValueTransForFuncExprVis {
       return builder.CreateLoad(opnd->getType(), opnd);
     case UOP_ADDROF:
       return llvm::cast<llvm::LoadInst>(opnd)->getPointerOperand();
+    default:
+      rt_assert(false, "BUG: Uop code gen failed");
+      return nullptr;
     }
   }
   inline llvm::Value* operator()(catk::semantics::IfElseOp top) const {
@@ -174,11 +178,11 @@ struct ValueTransForFuncExprVis {
     auto* v1 = driver.translate_value(s_opnds[2]);
     builder.CreateStore(v1, PRes);
     builder.SetInsertPoint(curPt);
-    return builder.CreateLoad(PRes);
+    return builder.CreateLoad(PRes->getType(), PRes);
   }
   inline llvm::Value* operator()(catk::semantics::Symbol* uf) const {
     auto opnds = translate_opnds();
-    auto* callee_ctx = catk::getType(uf)->get_lazy_context();
+    auto* callee_ctx = catk::get_type(uf)->get_lazy_context();
     return driver.translate_context_call(uf->get_name(), callee_ctx, s_opnds, opnds);
   }
   inline llvm::SmallVector<llvm::Value*, 4> translate_opnds() const {
@@ -224,7 +228,7 @@ struct ValueTransVis {
     return builder.CreateLoad(storage->getType()->getPointerElementType(), storage);
   }
   inline llvm::Value* operator()(const catk::semantics::FunctionalExpr* expr) const {
-    auto* stype = catk::getType(expr);
+    auto* stype = catk::get_type(expr);
     ValueTransForFuncExprVis vis{
       stype, driver.translate_type(stype), expr->get_operands(), 
       driver, builder
