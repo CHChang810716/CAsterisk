@@ -120,6 +120,7 @@ const catk::semantics::Context* get_typed_context(const catk::semantics::Context
       auto& p = params[i];
       expr_type[p] = opnd_tys[i];
     }
+    imm_ctx->set_immediate(true);
     res = imm_ctx;
   }
   return res;

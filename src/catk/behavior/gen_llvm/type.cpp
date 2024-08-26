@@ -38,17 +38,18 @@ struct TypeTransVis {
       // TODO: currently we only capture by reference
       ctx_struct_mem_tys.push_back(driver_.translate_type(scap_tar_ty)->getPointerTo());
     }
-    return llvm::StructType::create(*Driver::get_llvm_context(), ctx_struct_mem_tys);
+    return llvm::StructType::create(*Driver::get_llvm_context(), ctx_struct_mem_tys, id);
   }
   llvm::Type* operator()(const catk::Type::PointerElem& s_ptr_ty) const {
     return driver_.translate_type(s_ptr_ty)->getPointerTo();
   }
   Driver& driver_;
   llvm::IRBuilder<>& builder_;
+  type::TypeId id;
 };
 
 llvm::Type* Driver::translate_type(const catk::Type* stype) {
-  TypeTransVis vis{*this, *this->builder_};
+  TypeTransVis vis{*this, *this->builder_, stype->get_id()};
   return stype->visit(vis);
 }
 }

@@ -30,9 +30,6 @@ class Context : public Expr {
   RetExpr* ret_expr_ {nullptr};
   bool is_immediate_ {true};
   static void set_current_context(Context* ctx);
-  void set_immediate(bool f) {
-    is_immediate_ = f;
-  }
 public:
   RetExpr* get_return() const { return ret_expr_; }
   Symbol* get_symbol(const std::string& name) const {
@@ -56,6 +53,9 @@ public:
     return is_immediate_;
   }
   const auto& captures() const { return captures_; }
+  void set_immediate(bool f) {
+    is_immediate_ = f;
+  }
   virtual Expr* clone() const;
   virtual Expr* deep_clone(SymbolTable& st) const;
 };

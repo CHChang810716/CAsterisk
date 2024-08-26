@@ -13,17 +13,19 @@ llvm::Value* Driver::translate_context_def(const catk::semantics::Context* sctx)
   auto* ctx_struct = builder_->CreateAlloca(ctx_struct_ty);
   auto get_ctx_struct_mem = [&](unsigned i) {
     auto* rt = ctx_struct_ty->getStructElementType(i);
-    return builder_->CreateGEP(rt, ctx_struct, {
-      builder_->getInt8(0),
-      builder_->getInt8(i)
+    auto* gep = builder_->CreateGEP(ctx_struct_ty, ctx_struct, {
+      builder_->getInt32(0),
+      builder_->getInt32(i)
     });
+    return builder_->CreateBitOrPointerCast(gep, rt->getPointerTo());
   };
   auto& scaps = sctx->captures();
   for (unsigned i = 0; i < scaps.size(); ++i) {
     auto& scap = scaps[i];
     auto* scap_tar = dynamic_cast<catk::semantics::Symbol*>(scap->rhs());
-    llvm::Value* cap = symbol_storage_[scap_tar]; // pointer to value location
-    builder_->CreateStore(cap, get_ctx_struct_mem(i));
+    llvm::Value* cap = translate_value(scap_tar);
+    llvm::Value* ptr = get_ctx_struct_mem(i);
+    builder_->CreateStore(cap, ptr);
   }
   slazy_ctx_struct_[sctx] = ctx_struct;
   struct_to_slazy_ctx_[ctx_struct] = sctx;
@@ -44,6 +46,9 @@ llvm::Value* Driver::translate_context_call(
   } else {
     rt_assert(!callee->is_immediate(), "callee context should be lazy");
     llvm::Value* ctx_struct = slazy_ctx_struct_[callee];
+    if (!ctx_struct) {
+      ctx_struct = translate_context_def(callee);
+    }
     // make function
     std::vector<catk::Type*> opnd_tys;
     for (auto& opnd : s_opnds) {
@@ -62,13 +67,14 @@ llvm::Value* Driver::translate_context_call(
     auto* func = create_function(fty, name);
     call_site = builder_->GetInsertPoint();
     builder_->SetInsertPoint(&curr_func_->getEntryBlock());
-    auto* ctx_struct_ty = ctx_struct->getType();
+    auto* ctx_struct_ty = ctx_struct->getType()->getPointerElementType();
     auto get_ctx_struct_mem = [&](unsigned i) {
       auto* rt = ctx_struct_ty->getStructElementType(i);
-      return builder_->CreateGEP(rt, ctx_struct, {
-        builder_->getInt8(0),
-        builder_->getInt8(i)
+      auto* gep = builder_->CreateGEP(ctx_struct_ty, ctx_struct, {
+        builder_->getInt32(0),
+        builder_->getInt32(i)
       });
+      return builder_->CreateLoad(rt, gep);
     };
     auto& scaps = callee->captures();
     for (unsigned i = 0; i < scaps.size(); ++i) {
@@ -78,7 +84,7 @@ llvm::Value* Driver::translate_context_call(
     auto& sparams = sctx->params();
     for (unsigned i = 0; i < sparams.size(); ++i) {
       auto& sparam = sparams[i];
-      llvm::Value* sym_val = func->getOperand(i + 1);
+      llvm::Value* sym_val = func->getArg(i + 1);
       llvm::Value* sym_storage = builder_->CreateAlloca(sym_val->getType());
       builder_->CreateStore(sym_val, sym_storage);
       symbol_storage_[sparam] = sym_storage;
