@@ -1,6 +1,8 @@
 #include <catk/behavior/gen_llvm/driver.hpp>
 #include <avalon/mpl/virt_visit.hpp>
 #include <llvm/Transforms/Utils/BasicBlockUtils.h>
+#include <catk/type/op_cast.hpp>
+
 namespace catk::behavior::gen_llvm {
 
 using SemanticValues = avalon::mpl::TypeList<
@@ -82,6 +84,35 @@ struct ValueTransForFuncExprVis {
     return opnds;
   }
 
+  auto tl_by_bop_pri_cast(const llvm::SmallVector<llvm::Value*, 4>& opnds) const {
+    using namespace catk::semantics;
+    rt_assert(opnds.size() == 2, "BUG: not binary operator");
+    auto sty0 = catk::get_type(s_opnds[0]);
+    auto sty1 = catk::get_type(s_opnds[1]);
+    auto bop_cast_info = catk::type::bop_cast(
+      sty0->as_primary(), sty1->as_primary()
+    );
+    auto cast_v = [&](llvm::Value* opnd, catk::Type* sty, PrimaryType pt) {
+      llvm::Value* v = nullptr;
+      auto tsty = catk::to_type(pt);
+      auto ty = driver.translate_type(tsty);
+      if (sty->is_signed_int()) {
+        v = builder.CreateSExt(opnd, ty);
+      }
+      if (sty->is_unsigned_int()) {
+        v = builder.CreateZExt(opnd, ty);
+      }
+      if (sty->is_float()) {
+        v = builder.CreateFPCast(opnd, ty);
+      }
+      rt_assert(v != nullptr, "op cast failed");
+      return v;
+    };
+    llvm::Value *v0 = cast_v(opnds[0], sty0, bop_cast_info.op0);
+    llvm::Value *v1 = cast_v(opnds[1], sty1, bop_cast_info.op1);
+    return llvm::SmallVector<llvm::Value*, 4>({v0, v1});
+  }
+
   std::uint8_t resolve_flag(const llvm::Value* v, const catk::semantics::Expr* sv) const {
     auto* semty = catk::get_type(sv);
     if (!semty->is_primary()) return NP;
@@ -91,43 +122,44 @@ struct ValueTransForFuncExprVis {
     rt_assert(false, "NYI type, expr: " + sv->dump_str());
     return 0;
   }
+
   inline llvm::Value* operator()(catk::semantics::BinOp bop) const {
     using namespace catk::semantics;
     auto opnds = translate_opnds();
     rt_assert(opnds.size() == 2, "binary operator only accept 2 operands");
     auto opnd0_flag = resolve_flag(opnds[0], s_opnds[0]);
     auto opnd1_flag = resolve_flag(opnds[1], s_opnds[1]);
-    BOP_HANDLE(SI|UI, SI|UI, BOP_ADD, tl_match_ret_type, builder.CreateAdd);
-    BOP_HANDLE(FP,    FP,    BOP_ADD, tl_match_ret_type, builder.CreateFAdd);
-    BOP_HANDLE(SI|UI, SI|UI, BOP_SUB, tl_match_ret_type, builder.CreateSub);
-    BOP_HANDLE(FP,    FP,    BOP_SUB, tl_match_ret_type, builder.CreateFSub);
-    BOP_HANDLE(SI|UI, SI|UI, BOP_MUL, tl_match_ret_type, builder.CreateMul);
-    BOP_HANDLE(FP,    FP,    BOP_MUL, tl_match_ret_type, builder.CreateFMul);
-    BOP_HANDLE(SI,    SI,    BOP_DIV, tl_match_ret_type, builder.CreateSDiv);
-    BOP_HANDLE(UI,    UI,    BOP_DIV, tl_match_ret_type, builder.CreateUDiv);
-    BOP_HANDLE(FP,    FP,    BOP_DIV, tl_match_ret_type, builder.CreateFDiv);
-    BOP_HANDLE(SI,    SI,    BOP_MOD, tl_match_ret_type, builder.CreateSRem);
-    BOP_HANDLE(UI,    UI,    BOP_MOD, tl_match_ret_type, builder.CreateURem);
-    BOP_HANDLE(FP,    FP,    BOP_MOD, tl_match_ret_type, builder.CreateFRem);
-    BOP_HANDLE(SI|UI, SI|UI, BOP_AND, tl_match_ret_bits, builder.CreateAnd);
-    BOP_HANDLE(SI|UI, SI|UI, BOP_OR,  tl_match_ret_bits, builder.CreateOr);
-    BOP_HANDLE(SI|UI, SI|UI, BOP_XOR, tl_match_ret_bits, builder.CreateXor);
-    BOP_HANDLE(SI,    SI,    BOP_LT,  tl_check_same,     builder.CreateICmpSLT);
-    BOP_HANDLE(UI,    UI,    BOP_LT,  tl_check_same,     builder.CreateICmpULT);
-    BOP_HANDLE(FP,    FP,    BOP_LT,  tl_check_same,     builder.CreateFCmpOLT);
-    BOP_HANDLE(SI,    SI,    BOP_GT,  tl_check_same,     builder.CreateICmpSGT);
-    BOP_HANDLE(UI,    UI,    BOP_GT,  tl_check_same,     builder.CreateICmpUGT);
-    BOP_HANDLE(FP,    FP,    BOP_GT,  tl_check_same,     builder.CreateFCmpOGT);
-    BOP_HANDLE(SI|UI, SI|UI, BOP_EQ,  tl_check_same,     builder.CreateICmpEQ);
-    BOP_HANDLE(FP,    FP,    BOP_EQ,  tl_check_same,     builder.CreateFCmpOEQ);
-    BOP_HANDLE(SI,    SI,    BOP_LE,  tl_check_same,     builder.CreateICmpSLE);
-    BOP_HANDLE(UI,    UI,    BOP_LE,  tl_check_same,     builder.CreateICmpULE);
-    BOP_HANDLE(FP,    FP,    BOP_LE,  tl_check_same,     builder.CreateFCmpOLE);
-    BOP_HANDLE(SI,    SI,    BOP_GE,  tl_check_same,     builder.CreateICmpSGE);
-    BOP_HANDLE(UI,    UI,    BOP_GE,  tl_check_same,     builder.CreateICmpUGE);
-    BOP_HANDLE(FP,    FP,    BOP_GE,  tl_check_same,     builder.CreateFCmpOGE);
-    BOP_HANDLE(SI|UI, SI|UI, BOP_NE,  tl_check_same,     builder.CreateICmpNE);
-    BOP_HANDLE(FP,    FP,    BOP_NE,  tl_check_same,     builder.CreateFCmpONE);
+    BOP_HANDLE(SI|UI, SI|UI, BOP_ADD, tl_match_ret_type,  builder.CreateAdd);
+    BOP_HANDLE(FP,    FP,    BOP_ADD, tl_match_ret_type,  builder.CreateFAdd);
+    BOP_HANDLE(SI|UI, SI|UI, BOP_SUB, tl_match_ret_type,  builder.CreateSub);
+    BOP_HANDLE(FP,    FP,    BOP_SUB, tl_match_ret_type,  builder.CreateFSub);
+    BOP_HANDLE(SI|UI, SI|UI, BOP_MUL, tl_match_ret_type,  builder.CreateMul);
+    BOP_HANDLE(FP,    FP,    BOP_MUL, tl_match_ret_type,  builder.CreateFMul);
+    BOP_HANDLE(SI,    SI,    BOP_DIV, tl_match_ret_type,  builder.CreateSDiv);
+    BOP_HANDLE(UI,    UI,    BOP_DIV, tl_match_ret_type,  builder.CreateUDiv);
+    BOP_HANDLE(FP,    FP,    BOP_DIV, tl_match_ret_type,  builder.CreateFDiv);
+    BOP_HANDLE(SI,    SI,    BOP_MOD, tl_match_ret_type,  builder.CreateSRem);
+    BOP_HANDLE(UI,    UI,    BOP_MOD, tl_match_ret_type,  builder.CreateURem);
+    BOP_HANDLE(FP,    FP,    BOP_MOD, tl_match_ret_type,  builder.CreateFRem);
+    BOP_HANDLE(SI|UI, SI|UI, BOP_AND, tl_match_ret_bits,  builder.CreateAnd);
+    BOP_HANDLE(SI|UI, SI|UI, BOP_OR,  tl_match_ret_bits,  builder.CreateOr);
+    BOP_HANDLE(SI|UI, SI|UI, BOP_XOR, tl_match_ret_bits,  builder.CreateXor);
+    BOP_HANDLE(SI,    SI,    BOP_LT,  tl_by_bop_pri_cast, builder.CreateICmpSLT);
+    BOP_HANDLE(UI,    UI,    BOP_LT,  tl_by_bop_pri_cast, builder.CreateICmpULT);
+    BOP_HANDLE(FP,    FP,    BOP_LT,  tl_by_bop_pri_cast, builder.CreateFCmpOLT);
+    BOP_HANDLE(SI,    SI,    BOP_GT,  tl_by_bop_pri_cast, builder.CreateICmpSGT);
+    BOP_HANDLE(UI,    UI,    BOP_GT,  tl_by_bop_pri_cast, builder.CreateICmpUGT);
+    BOP_HANDLE(FP,    FP,    BOP_GT,  tl_by_bop_pri_cast, builder.CreateFCmpOGT);
+    BOP_HANDLE(SI|UI, SI|UI, BOP_EQ,  tl_by_bop_pri_cast, builder.CreateICmpEQ);
+    BOP_HANDLE(FP,    FP,    BOP_EQ,  tl_by_bop_pri_cast, builder.CreateFCmpOEQ);
+    BOP_HANDLE(SI,    SI,    BOP_LE,  tl_by_bop_pri_cast, builder.CreateICmpSLE);
+    BOP_HANDLE(UI,    UI,    BOP_LE,  tl_by_bop_pri_cast, builder.CreateICmpULE);
+    BOP_HANDLE(FP,    FP,    BOP_LE,  tl_by_bop_pri_cast, builder.CreateFCmpOLE);
+    BOP_HANDLE(SI,    SI,    BOP_GE,  tl_by_bop_pri_cast, builder.CreateICmpSGE);
+    BOP_HANDLE(UI,    UI,    BOP_GE,  tl_by_bop_pri_cast, builder.CreateICmpUGE);
+    BOP_HANDLE(FP,    FP,    BOP_GE,  tl_by_bop_pri_cast, builder.CreateFCmpOGE);
+    BOP_HANDLE(SI|UI, SI|UI, BOP_NE,  tl_by_bop_pri_cast, builder.CreateICmpNE);
+    BOP_HANDLE(FP,    FP,    BOP_NE,  tl_by_bop_pri_cast, builder.CreateFCmpONE);
     rt_assert(false, 
       fmt::format("no available binary operator for operands: ({}), ({})", 
         s_opnds[0]->dump_str(), s_opnds[1]->dump_str()
@@ -170,14 +202,23 @@ struct ValueTransForFuncExprVis {
     llvm::Instruction* ThenPt;
     llvm::Instruction* ElsePt;
     auto* cond = driver.translate_value(s_opnds[0]);
-    llvm::SplitBlockAndInsertIfThenElse(cond, curPt, &ThenPt, &ElsePt);
-    builder.SetInsertPoint(ThenPt);
+    auto* thenBB = llvm::BasicBlock::Create(*Driver::get_llvm_context(), "then", driver.curr_func_);
+    auto* elseBB = llvm::BasicBlock::Create(*Driver::get_llvm_context(), "else", driver.curr_func_);
+    auto* endBB = llvm::BasicBlock::Create(*Driver::get_llvm_context(), "end", driver.curr_func_);
+    builder.CreateCondBr(cond, thenBB, elseBB);
+
+    // llvm::SplitBlockAndInsertIfThenElse(cond, curPt, &ThenPt, &ElsePt);
+    builder.SetInsertPoint(thenBB);
     auto* v0 = driver.translate_value(s_opnds[1]);
     builder.CreateStore(v0, PRes);
-    builder.SetInsertPoint(ElsePt);
+    builder.CreateBr(endBB);
+
+    builder.SetInsertPoint(elseBB);
     auto* v1 = driver.translate_value(s_opnds[2]);
     builder.CreateStore(v1, PRes);
-    builder.SetInsertPoint(curPt);
+    builder.CreateBr(endBB);
+
+    builder.SetInsertPoint(endBB);
     return builder.CreateLoad(PRes->getType(), PRes);
   }
   inline llvm::Value* operator()(catk::semantics::Symbol* uf) const {

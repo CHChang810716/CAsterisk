@@ -46,6 +46,7 @@ private:
   llvm::Function* curr_func_;
   std::unordered_map<const catk::Type*, const llvm::Type*> type_map_;
   std::unordered_map<const catk::semantics::Context*, llvm::Value*> slazy_ctx_struct_;
+  std::unordered_map<const catk::semantics::Context*, llvm::Function*> typed_ctx_func_;
   std::unordered_map<llvm::Value*, const catk::semantics::Context*> struct_to_slazy_ctx_;
   std::unordered_map<const catk::semantics::Symbol*, llvm::Value*> symbol_storage_;
 };

@@ -5,22 +5,44 @@
 #include <string>
 #include <tao/pegtl/position.hpp>
 #include <fmt/format.h>
-namespace catk::semantics {
 
+namespace catk::semantics {
 enum PrimaryType : std::uint32_t {
-  CATK_UINT8     = 0,
-  CATK_UINT16    = 1,
-  CATK_UINT32    = 2,
-  CATK_UINT64    = 3,
-  CATK_INT8      = 4,
-  CATK_INT16     = 5,
-  CATK_INT32     = 6,
-  CATK_INT64     = 7,
-  CATK_FLOAT32   = 8,
-  CATK_FLOAT64   = 9,
-  CATK_STRING    = 10,
+  CATK_BOOL   ,
+  CATK_UBOOL   ,
+  CATK_INT8   ,
+  CATK_UINT8  ,
+  CATK_INT16  ,
+  CATK_UINT16 ,
+  CATK_INT32  ,
+  CATK_UINT32 ,
+  CATK_INT64  ,
+  CATK_UINT64 ,
+  CATK_FLOAT32,
+  CATK_FLOAT64,
+  CATK_STRING ,
   CATK_PT_END
 };
+inline static bool is_int(PrimaryType t) { 
+  return t < CATK_FLOAT32;
+}
+inline static bool is_unsigned_int(PrimaryType t) { 
+  return is_int(t) &&  (t & 1 == 0);
+}
+inline static bool is_signed_int(PrimaryType t) {
+  return is_int(t) && !is_unsigned_int(t);
+}
+inline static bool is_float(PrimaryType t) {
+  return t == CATK_FLOAT32 || t == CATK_FLOAT64;
+}
+inline static bool is_same_int_signed(PrimaryType t0, PrimaryType t1) {
+  if (!(is_int(t0) && is_int(t1))) return false; 
+  return (t0 & 1) == (t1 & 1);
+}
+inline static bool is_same_int_bits(PrimaryType t0, PrimaryType t1) {
+  if (!(is_int(t0) && is_int(t1))) return false; 
+  return (t0 >> 1) == (t1 >> 1);
+}
 PrimaryType operator++(PrimaryType& x); 
 PrimaryType operator*(PrimaryType c); 
 PrimaryType begin(PrimaryType r); 

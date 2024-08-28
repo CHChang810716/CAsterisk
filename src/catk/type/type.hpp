@@ -15,7 +15,7 @@ struct StructTypeContent {
   const std::vector<const Type*> members;
 };
 
-struct Type {
+struct Type : public avalon::DebugID<Type> {
   using PrimaryType = catk::semantics::PrimaryType;
   using StructType = StructTypeContent;
   using LazyContext = const catk::semantics::Context*;
@@ -48,20 +48,23 @@ struct Type {
   bool is_undecided() const { return is_undecided_; }
   bool is_unsigned_int() const {
     rt_assert(is_primary(), "must be primary");
-    return std::get<PrimaryType>(content_) < catk::semantics::CATK_INT8;
+    auto& v = std::get<PrimaryType>(content_);
+    return catk::semantics::is_unsigned_int(v);
   }
   bool is_int() const {
     rt_assert(is_primary(), "must be primary");
-    return std::get<PrimaryType>(content_) < catk::semantics::CATK_FLOAT32;
+    auto& v = std::get<PrimaryType>(content_);
+    return catk::semantics::is_int(v);
   }
   bool is_signed_int() const {
     rt_assert(is_primary(), "must be primary");
-    return is_int() && !is_unsigned_int();
+    auto& v = std::get<PrimaryType>(content_);
+    return catk::semantics::is_signed_int(v);
   }
   bool is_float() const {
     rt_assert(is_primary(), "must be primary");
     auto& v = std::get<PrimaryType>(content_);
-    return v == catk::semantics::CATK_FLOAT32 || v == catk::semantics::CATK_FLOAT32;
+    return catk::semantics::is_float(v);
   }
   Type* get_pointer_elem_ty() const {
     rt_assert(is_pointer(), "must be pointer");
@@ -77,6 +80,9 @@ struct Type {
   template<class Vis>
   auto visit(Vis&& vis) const {
     return std::visit(std::forward<Vis>(vis), content_);
+  }
+  auto& as_primary() const {
+    return std::get<PrimaryType>(content_);
   }
   static Type* get_undecided() {
     static Type ut(PrimaryType::CATK_PT_END, "(undecided)", false, true);

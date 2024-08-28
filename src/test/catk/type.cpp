@@ -7,8 +7,10 @@
 #include <catk/semantics/module.hpp>
 #include <fstream>
 #include <catk/type.hpp>
+#include <fmt/format.h>
 
 TEST(type_test, file_fib) {
+  using namespace catk::semantics;
   using RuleFile = tao::pegtl::must<catk::syntax::File>;
   auto f = avalon::app::test_data_dir() / "fib.car";
   tao::pegtl::file_input<> in(f.string());
@@ -18,6 +20,6 @@ TEST(type_test, file_fib) {
     catk::syntax::ASTSelector
   >(in);
   auto* mod = catk::semantics::Module::from_ast(*root);
-  EXPECT_EQ(catk::get_type(mod->get_context()->get_symbol("y"))->get_id(), "7_pmt");
-  EXPECT_EQ(catk::get_type(mod->get_context()->get_symbol("y"))->get_id(), "7_pmt");
+  EXPECT_EQ(catk::get_type(mod->get_context()->get_symbol("y"))->get_id(), fmt::format("{}_pmt", (int)CATK_INT64));
+  EXPECT_EQ(catk::get_type(mod->get_context()->get_symbol("y"))->get_id(), fmt::format("{}_pmt", (int)CATK_INT64));
 }

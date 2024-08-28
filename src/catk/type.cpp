@@ -10,7 +10,7 @@
 #include <catk/type/context.hpp>
 #include <catk/error/rule_violation.hpp>
 #include <catk/semantics/constant.hpp>
-
+#include <catk/type/op_cast.hpp>
 namespace catk {
 
 using SCtx = catk::semantics::Context;
@@ -34,8 +34,32 @@ struct GetTypeFuncVisit {
   {}
 
   inline Type* operator()(catk::semantics::BinOp bop) const {
-    // TODO: implement value range typing
-    return opnd_tys_[0];
+    using namespace catk::semantics;
+    if (opnd_tys_[0] == Type::get_undecided()) return Type::get_undecided();
+    if (opnd_tys_[1] == Type::get_undecided()) return Type::get_undecided();
+    switch(bop) {
+    case BOP_ADD:
+    case BOP_SUB:
+    case BOP_MUL:
+    case BOP_DIV:
+    case BOP_MOD:
+    case BOP_AND:
+    case BOP_OR:
+    case BOP_XOR: {
+      auto cast_info = type::bop_cast(opnd_tys_[0]->as_primary(), opnd_tys_[1]->as_primary());
+      return type::Context::get().getType(cast_info.op0);
+    }
+    case BOP_LT:
+    case BOP_GT:
+    case BOP_EQ:
+    case BOP_LE:
+    case BOP_GE:
+    case BOP_NE:
+      return type::Context::get().getType(CATK_BOOL);
+    default:
+      rt_assert(false, "no bop type inference");
+      return nullptr;
+    }
   }
   inline Type* operator()(catk::semantics::UnaryOp uop) const {
     auto& opnd = opnd_tys_[0];
@@ -142,6 +166,10 @@ Type* get_type(const catk::semantics::Expr* expr) {
     }
   }
   return type;
+}
+
+Type* to_type(catk::semantics::PrimaryType pt) {
+  return type::Context::get().getType(pt);
 }
 
 }

@@ -13,6 +13,8 @@ struct TypeTransVis {
   llvm::Type* operator()(const catk::Type::PrimaryType& s_pri_ty) const {
     using namespace catk::semantics;
     switch(s_pri_ty) {
+    case CATK_BOOL   : return builder_.getInt1Ty();
+    case CATK_UBOOL  : return builder_.getInt1Ty();
     case CATK_UINT8  : return builder_.getInt8Ty();
     case CATK_UINT16 : return builder_.getInt16Ty();
     case CATK_UINT32 : return builder_.getInt32Ty();

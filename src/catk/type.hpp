@@ -6,6 +6,7 @@ namespace catk {
 using Type = catk::type::Type;
 
 Type* get_type(const catk::semantics::Expr* expr);
+Type* to_type(catk::semantics::PrimaryType pt);
 const catk::semantics::Context* get_typed_context(const catk::semantics::Context* ctx, const std::vector<Type*>& opnd_tys);
 
 } // namespace catk
