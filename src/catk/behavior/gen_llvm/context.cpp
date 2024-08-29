@@ -39,7 +39,6 @@ llvm::Value* Driver::translate_context_call(
   const llvm::SmallVector<llvm::Value*, 4>& opnds
 ) {
   const catk::semantics::Context* sctx = nullptr;
-  auto call_site = &*builder_->GetInsertPoint();
   llvm::Function* trans_curr_func = curr_func_;
   bool need_gen_func = false;
   if (callee->is_immediate()) {
@@ -71,11 +70,12 @@ llvm::Value* Driver::translate_context_call(
       }
       auto* fty = llvm::FunctionType::get(rty, param_tys, false);
       func = create_function(fty, name);
-      call_site = &*builder_->GetInsertPoint();
+      auto call_site = builder_->GetInsertBlock();
       curr_func_ = func;
       builder_->SetInsertPoint(&curr_func_->getEntryBlock());
-      auto* ctx_struct_ty = ctx_struct->getType()->getPointerElementType();
-      auto get_ctx_struct_mem = [&](unsigned i) {
+      auto get_ctx_struct_mem = [&, func](unsigned i) {
+        auto* ctx_struct = func->getArg(0);
+        auto* ctx_struct_ty = ctx_struct->getType()->getPointerElementType();
         auto* rt = ctx_struct_ty->getStructElementType(i);
         auto* gep = builder_->CreateGEP(ctx_struct_ty, ctx_struct, {
           builder_->getInt32(0),
@@ -92,7 +92,7 @@ llvm::Value* Driver::translate_context_call(
       for (unsigned i = 0; i < sparams.size(); ++i) {
         auto& sparam = sparams[i];
         llvm::Value* sym_val = func->getArg(i + 1);
-        llvm::Value* sym_storage = builder_->CreateAlloca(sym_val->getType());
+        llvm::Value* sym_storage = builder_->CreateAlloca(sym_val->getType(), nullptr, sparam->get_name());
         builder_->CreateStore(sym_val, sym_storage);
         symbol_storage_[sparam] = sym_storage;
       }

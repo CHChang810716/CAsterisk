@@ -4,6 +4,6 @@
 #include <catk/semantics.hpp>
 namespace catk::behavior {
 
-llvm::Module* gen_llvm_mod(const catk::semantics::Module* cmod);
+std::unique_ptr<llvm::Module> gen_llvm_mod(const catk::semantics::Module* cmod);
 
 } // namespace catk::behavior

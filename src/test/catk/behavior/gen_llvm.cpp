@@ -67,6 +67,11 @@ TEST(behavior, file_fib_test) {
   auto* mod = catk::semantics::Module::from_ast(*root);
   auto* cu = catk::get_unit_behavior(mod);
   auto* llvm_mod = cu->as_llvm_module();
-  llvm_mod->dump();
+  EXPECT_NE(llvm_mod->getFunction("fib_impl"), nullptr);
+  EXPECT_NE(llvm_mod->getFunction("fib"), nullptr);
+  std::string tmp;
+  llvm::raw_string_ostream out(tmp);
+  llvm_mod->print(out, nullptr);
+  std::cout << tmp << std::endl;
   
 }

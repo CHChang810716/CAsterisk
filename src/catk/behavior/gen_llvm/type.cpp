@@ -4,6 +4,7 @@ namespace catk::behavior::gen_llvm {
 
 struct TypeTransVis {
   llvm::Type* operator()(const catk::Type::StructType& s_struct_ty) const {
+    if (auto ty = driver_.get_struct_type(s_struct_ty.name)) return ty;
     llvm::SmallVector<llvm::Type*, 4> struct_mem_tys;
     for (auto& smem : s_struct_ty.members) {
       struct_mem_tys.push_back(driver_.translate_type(smem));
@@ -32,6 +33,7 @@ struct TypeTransVis {
     }
   }
   llvm::Type* operator()(const catk::Type::LazyContext& s_lazy_ctx_ty) const {
+    if (auto ty = driver_.get_struct_type(id)) return ty;
     llvm::SmallVector<llvm::Type*, 4> ctx_struct_mem_tys;
     auto& scaps = s_lazy_ctx_ty->captures();
     for (auto& scap : scaps) {
@@ -53,5 +55,14 @@ struct TypeTransVis {
 llvm::Type* Driver::translate_type(const catk::Type* stype) {
   TypeTransVis vis{*this, *this->builder_, stype->get_id()};
   return stype->visit(vis);
+}
+
+llvm::StructType* Driver::get_struct_type(llvm::StringRef name) {
+  for (auto s : curr_mod_->getIdentifiedStructTypes()) {
+    if (name == s->getName()) {
+      return s;
+    }
+  }
+  return nullptr;
 }
 }

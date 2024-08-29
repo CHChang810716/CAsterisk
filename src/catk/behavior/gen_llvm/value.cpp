@@ -263,7 +263,7 @@ struct ValueTransVis {
     if (!storage) {
       // FIXME: if symbol is a context struct, need special handling.
       llvm::Value* rhs = driver.translate_value(expr->rhs());
-      storage = builder.CreateAlloca(rhs->getType());
+      storage = builder.CreateAlloca(rhs->getType(), nullptr, llvm::Twine(expr->get_name()));
       builder.CreateStore(rhs, storage);
     }
     return builder.CreateLoad(storage->getType()->getPointerElementType(), storage);

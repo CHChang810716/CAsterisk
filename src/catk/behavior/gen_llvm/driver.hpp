@@ -23,11 +23,11 @@ public:
   , builder_(std::make_unique<llvm::IRBuilder<>>(*get_llvm_context()))
   , curr_func_(nullptr)
   {}
-  llvm::Module* translate_module(const catk::semantics::Module* smod);
+  std::unique_ptr<llvm::Module> translate_module(const catk::semantics::Module* smod);
   llvm::Type* translate_type(const catk::Type* t);
   llvm::Value* translate_value(const catk::semantics::Expr* expr);
   llvm::Value* translate_context_def(const catk::semantics::Context* sctx);
-  
+  llvm::StructType* get_struct_type(llvm::StringRef name);
 private:
   llvm::Function* create_function(llvm::FunctionType* ft, llvm::StringRef name);
   void handle_module(const catk::semantics::Module* smod);

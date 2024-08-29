@@ -6,7 +6,7 @@
 
 namespace catk::behavior {
 
-llvm::Module* gen_llvm_mod(const catk::semantics::Module* smod) {
+std::unique_ptr<llvm::Module> gen_llvm_mod(const catk::semantics::Module* smod) {
   catk::behavior::gen_llvm::Driver driver;
   return driver.translate_module(smod);
 }

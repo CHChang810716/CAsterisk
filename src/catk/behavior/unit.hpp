@@ -4,7 +4,8 @@
 
 namespace catk::behavior {
 
-using UnitHandle = std::variant<llvm::Module*>;
+using ModulePtr = std::unique_ptr<llvm::Module>;
+using UnitHandle = std::variant<ModulePtr>;
 
 class Unit {
 public:
@@ -12,8 +13,8 @@ public:
   explicit Unit(T&& handle)
   : handle_(std::forward<T>(handle))
   {}
-  llvm::Module* as_llvm_module() {
-    return std::get<llvm::Module*>(handle_);
+  auto* as_llvm_module() {
+    return std::get<ModulePtr>(handle_).get();
   }
 private:
   UnitHandle handle_;
