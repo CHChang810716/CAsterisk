@@ -34,6 +34,7 @@ private:
   llvm::Value* translate_context_call(
     llvm::StringRef name, 
     const catk::semantics::Context* callee, 
+    llvm::Value* callee_ctx_struct,
     const std::vector<catk::semantics::Expr*>& s_opnds,
     const llvm::SmallVector<llvm::Value*, 4>& opnds
   );
@@ -44,10 +45,8 @@ private:
   std::unique_ptr<llvm::Module> curr_mod_;
   std::unique_ptr<llvm::IRBuilder<>> builder_;
   llvm::Function* curr_func_;
-  std::unordered_map<const catk::Type*, const llvm::Type*> type_map_;
   std::unordered_map<const catk::semantics::Context*, llvm::Value*> slazy_ctx_struct_;
   std::unordered_map<const catk::semantics::Context*, llvm::Function*> typed_ctx_func_;
-  std::unordered_map<llvm::Value*, const catk::semantics::Context*> struct_to_slazy_ctx_;
   std::unordered_map<const catk::semantics::Symbol*, llvm::Value*> symbol_storage_;
 };
 

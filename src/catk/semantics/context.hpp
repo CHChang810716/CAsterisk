@@ -29,8 +29,11 @@ class Context : public Expr {
   std::vector<Symbol*> locals_;
   RetExpr* ret_expr_ {nullptr};
   bool is_immediate_ {true};
+  std::string id_;
+  void set_id(std::string&& id) { id_ = std::move(id); }
   static void set_current_context(Context* ctx);
 public:
+  const auto& get_id() const { return id_; }
   RetExpr* get_return() const { return ret_expr_; }
   Symbol* get_symbol(const std::string& name) const {
     auto itr = accessible_.find(name);

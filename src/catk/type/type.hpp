@@ -3,6 +3,7 @@
 #include <vector>
 #include <catk/semantics/utils.hpp>
 #include <string>
+#include <catk/semantics.hpp>
 
 namespace catk::type {
 
@@ -106,7 +107,7 @@ struct {
   }
   TypeId operator()(const catk::semantics::Context* ctx) const {
     rt_assert(ctx != nullptr, "cannot be null");
-    auto name = fmt::format("{}_ctx", static_cast<const void*>(ctx));
+    auto name = fmt::format("{}", ctx->get_id());
     return name;
   }
   TypeId operator()(const Type* t) const {

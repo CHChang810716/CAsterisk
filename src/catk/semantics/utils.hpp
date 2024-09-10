@@ -61,10 +61,6 @@ using PrimaryUnion = std::variant<
   double,
   std::string
 >;
-
-static inline std::string get_lambda_name(const tao::pegtl::position& pos) {
-  return fmt::format("__lamdba__{}", pos.line);
-}
 template<class T>
 using SharedPtr = std::shared_ptr<T>;
 

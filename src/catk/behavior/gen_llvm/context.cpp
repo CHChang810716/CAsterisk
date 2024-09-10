@@ -10,10 +10,10 @@ llvm::Value* Driver::translate_context_def(const catk::semantics::Context* sctx)
   auto& ctx = *get_llvm_context();
   // make context struct
   auto* ctx_struct_ty = translate_type(catk::get_type(sctx));
-  auto* ctx_struct = builder_->CreateAlloca(ctx_struct_ty);
+  auto* p_ctx_struct = builder_->CreateAlloca(ctx_struct_ty);
   auto get_ctx_struct_mem = [&](unsigned i) {
     auto* rt = ctx_struct_ty->getStructElementType(i);
-    auto* gep = builder_->CreateGEP(ctx_struct_ty, ctx_struct, {
+    auto* gep = builder_->CreateGEP(ctx_struct_ty, p_ctx_struct, {
       builder_->getInt32(0),
       builder_->getInt32(i)
     });
@@ -27,14 +27,14 @@ llvm::Value* Driver::translate_context_def(const catk::semantics::Context* sctx)
     llvm::Value* ptr = get_ctx_struct_mem(i);
     builder_->CreateStore(cap, ptr);
   }
-  slazy_ctx_struct_[sctx] = ctx_struct;
-  struct_to_slazy_ctx_[ctx_struct] = sctx;
-  return ctx_struct;
+  slazy_ctx_struct_[sctx] = p_ctx_struct;
+  return builder_->CreateLoad(ctx_struct_ty, p_ctx_struct);
 }
 
 llvm::Value* Driver::translate_context_call(
   llvm::StringRef name, 
   const catk::semantics::Context* callee, 
+  llvm::Value* callee_ctx_struct,
   const std::vector<catk::semantics::Expr*>& s_opnds,
   const llvm::SmallVector<llvm::Value*, 4>& opnds
 ) {
@@ -47,10 +47,12 @@ llvm::Value* Driver::translate_context_call(
     return res;
   } else {
     rt_assert(!callee->is_immediate(), "callee context should be lazy");
-    llvm::Value* ctx_struct = slazy_ctx_struct_[callee];
-    if (!ctx_struct) {
-      ctx_struct = translate_context_def(callee);
-    }
+    // TODO: need context dependent struct table
+    // llvm::Value* ctx_struct = slazy_ctx_struct_[callee];
+    // if (!ctx_struct) {
+    //   ctx_struct = translate_context_def(callee);
+    // }
+    llvm::Value* ctx_struct = callee_ctx_struct;
     // make function
     std::vector<catk::Type*> opnd_tys;
     for (auto& opnd : s_opnds) {
@@ -75,13 +77,10 @@ llvm::Value* Driver::translate_context_call(
       builder_->SetInsertPoint(&curr_func_->getEntryBlock());
       auto get_ctx_struct_mem = [&, func](unsigned i) {
         auto* ctx_struct = func->getArg(0);
-        auto* ctx_struct_ty = ctx_struct->getType()->getPointerElementType();
+        auto* ctx_struct_ty = ctx_struct->getType();
         auto* rt = ctx_struct_ty->getStructElementType(i);
-        auto* gep = builder_->CreateGEP(ctx_struct_ty, ctx_struct, {
-          builder_->getInt32(0),
-          builder_->getInt32(i)
-        });
-        return builder_->CreateLoad(rt, gep);
+        auto* gep = builder_->CreateExtractValue(ctx_struct, {i});
+        return gep;
       };
       auto& scaps = callee->captures();
       for (unsigned i = 0; i < scaps.size(); ++i) {

@@ -9,8 +9,8 @@ void Driver::handle_module(const catk::semantics::Module* smod) {
   auto* func = create_function(llvm::cast<llvm::FunctionType>(ft), "catk_mod_construct");
   builder_->SetInsertPoint(&func->getEntryBlock());
   auto* sctx = smod->get_context();
-  translate_context_def(sctx);
-  translate_context_call("init", sctx, {}, {});
+  llvm::Value* ctx_struct = translate_context_def(sctx);
+  translate_context_call("init", sctx, ctx_struct, {}, {});
   builder_->CreateRet(nullptr);
 }
 

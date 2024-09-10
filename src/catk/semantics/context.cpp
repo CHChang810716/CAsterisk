@@ -11,6 +11,13 @@
 
 namespace catk::semantics {
 
+
+static inline std::string get_ctx_id(
+  const catk::syntax::AST& ast 
+) {
+  auto pos = ast.begin();
+  return fmt::format("ctx{}", pos.line);
+}
 Context* Context::from_ast(
   catk::syntax::AST& ast, 
   const std::vector<catk::syntax::AST*>& params, 
@@ -19,6 +26,7 @@ Context* Context::from_ast(
   // make context object and function
   Context& ctx = DB::get().alloc<Context>();
   ctx.set_immediate(is_immediate);
+  ctx.set_id(get_ctx_id(ast));
   const struct ContextSwitchGuard {
     Context* last;
     ContextSwitchGuard(Context* curr) {
@@ -183,6 +191,8 @@ Expr* Context::deep_clone(SymbolTable& st) const {
     ret_expr_->deep_clone(symtab)
   );
   ctx->is_immediate_ = is_immediate_;
+  // TODO: ID duplicate issue need resolve
+  ctx->id_ = id_;
   return ctx;
 }
 

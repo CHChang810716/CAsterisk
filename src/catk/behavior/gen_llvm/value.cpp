@@ -224,7 +224,8 @@ struct ValueTransForFuncExprVis {
   inline llvm::Value* operator()(catk::semantics::Symbol* uf) const {
     auto opnds = translate_opnds();
     auto* callee_ctx = catk::get_type(uf)->get_lazy_context();
-    return driver.translate_context_call(uf->get_name(), callee_ctx, s_opnds, opnds);
+    llvm::Value* ctx_struct = driver.translate_value(uf);
+    return driver.translate_context_call(uf->get_name(), callee_ctx, ctx_struct, s_opnds, opnds);
   }
   inline llvm::SmallVector<llvm::Value*, 4> translate_opnds() const {
     llvm::SmallVector<llvm::Value*, 4> opnds;
@@ -261,7 +262,6 @@ struct ValueTransVis {
   inline llvm::Value* operator()(const catk::semantics::Symbol* expr) const {
     llvm::Value*& storage = driver.symbol_storage_[expr];
     if (!storage) {
-      // FIXME: if symbol is a context struct, need special handling.
       llvm::Value* rhs = driver.translate_value(expr->rhs());
       storage = builder.CreateAlloca(rhs->getType(), nullptr, llvm::Twine(expr->get_name()));
       builder.CreateStore(rhs, storage);
